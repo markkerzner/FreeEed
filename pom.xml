@@ -49,8 +49,6 @@
     <modules>
         <module>freeeed-processing</module>
         <module>freeeed-ui</module>
-        <module>freeeed-test</module>
-        <module>scaia-ai</module>
     </modules>
     <dependencyManagement>
         <dependencies>
@@ -137,11 +135,6 @@
                 <version>1.9</version>
             </dependency>
             <dependency>
-                <groupId>org.mockito</groupId>
-                <artifactId>mockito-core</artifactId>
-                <version>1.9.5</version>
-            </dependency>
-            <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpmime</artifactId>
                 <version>4.2.5</version>
@@ -173,13 +166,6 @@
                 <artifactId>gson</artifactId>
                 <version>2.2.2</version>
             </dependency>
-            <!--
-            <dependency>
-                <groupId>com.ibm</groupId>
-                <artifactId>notes</artifactId>
-                <version>1.0</version>
-            </dependency>
-            -->
             <dependency>
                 <groupId>com.jcraft</groupId>
                 <artifactId>jsch</artifactId>
@@ -188,7 +174,7 @@
             <dependency>
                 <groupId>org.xerial</groupId>
                 <artifactId>sqlite-jdbc</artifactId>
-                <version>3.8.11.2</version>
+                <version>3.30.1</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
@@ -228,17 +214,17 @@
             <dependency>
                 <groupId>org.apache.tika</groupId>
                 <artifactId>tika-core</artifactId>
-                <version>1.23</version>
+                <version>1.24</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.tika</groupId>
                 <artifactId>tika-parsers</artifactId>
-                <version>1.23</version>
+                <version>1.24</version>
             </dependency>
             <dependency>
                 <groupId>net.sourceforge.tess4j</groupId>
                 <artifactId>tess4j</artifactId>
-                <version>3.4.2</version>
+                <version>4.5.1</version>
                 <exclusions>
                     <exclusion>
                         <artifactId>log4j-over-slf4j</artifactId>
@@ -258,18 +244,6 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>2.2.1</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.6.1</version>
                 <configuration>
@@ -277,14 +251,6 @@
                     <showWarnings>true</showWarnings>
                     <source>${jdk.version}</source>
                     <target>${jdk.version}</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>${surefire.plugin.version}</version>
-                <configuration>
-                    <argLine>-Xmx1024m -enableassertions</argLine>
                 </configuration>
             </plugin>
             <plugin>
@@ -373,166 +339,4 @@
             </plugins>
         </pluginManagement>
     </build>
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-project-info-reports-plugin</artifactId>
-                <version>2.7</version>
-                <configuration>
-                    <!-- disable dependency details & location to enable faster builds -->
-                    <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
-                    <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
-                </configuration>
-                <reportSets>
-                    <reportSet>
-                        <reports>
-                            <report>cim</report>
-                            <report>dependencies</report>
-                            <report>dependency-management</report>
-                            <report>distribution-management</report>
-                            <report>index</report>
-                            <report>issue-tracking</report>
-                            <report>mailing-list</report>
-                            <report>plugin-management</report>
-                            <report>plugins</report>
-                            <report>project-team</report>
-                            <report>scm</report>
-                            <report>summary</report>
-                        </reports>
-                    </reportSet>
-                </reportSets>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>${dependency.plugin.version}</version>
-                <reportSets>
-                    <reportSet>
-                        <reports>
-                            <report>analyze-report</report>
-                        </reports>
-                    </reportSet>
-                </reportSets>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>${javadoc.plugin.version}</version>
-                <configuration>
-                    <docfilessubdirs>true</docfilessubdirs>
-                    <detectLinks>true</detectLinks>
-                    <links>
-                        <!-- TODO Add any necessary links -->
-                        <!-- <link></link> -->
-                    </links>
-                    <source>${jdk.version}</source>
-                </configuration>
-                <reportSets>
-                    <reportSet>
-                        <reports>
-                            <report>javadoc</report>
-                            <report>test-javadoc</report>
-                        </reports>
-                    </reportSet>
-                </reportSets>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jxr-plugin</artifactId>
-                <version>2.3</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-pmd-plugin</artifactId>
-                <version>3.0.1</version>
-                <configuration>
-                    <targetJdk>${jdk.version}</targetJdk>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-report-plugin</artifactId>
-                <version>${surefire.plugin.version}</version>
-                <reportSets>
-                    <reportSet>
-                        <reports>
-                            <report>report-only</report>
-                        </reports>
-                    </reportSet>
-                </reportSets>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <version>2.5.2</version>
-                <configuration>
-                    <effort>Max</effort>
-                    <threshold>Low</threshold>
-                    <excludeFilterFile>${project.basedir}/src/etc/findbugs-exclude.xml</excludeFilterFile>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>taglist-maven-plugin</artifactId>
-                <version>2.4</version>
-                <configuration>
-                    <tagListOptions>
-                        <tagClasses>
-                            <tagClass>
-                                <displayName>Pending Work</displayName>
-                                <tags>
-                                    <tag>
-                                        <matchString>FIXME</matchString>
-                                        <matchType>ignoreCase</matchType>
-                                    </tag>
-                                    <tag>
-                                        <matchString>TODO</matchString>
-                                        <matchType>ignoreCase</matchType>
-                                    </tag>
-                                    <tag>
-                                        <matchString>WARN</matchString>
-                                        <matchType>exact</matchType>
-                                    </tag>
-                                </tags>
-                            </tagClass>
-                            <tagClass>
-                                <displayName>Deprecations</displayName>
-                                <tags>
-                                    <tag>
-                                        <matchString>@deprecated</matchString>
-                                        <matchType>exact</matchType>
-                                    </tag>
-                                </tags>
-                            </tagClass>
-                        </tagClasses>
-                    </tagListOptions>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>clirr-maven-plugin</artifactId>
-                <version>${clirr.plugin.version}</version>
-                <configuration>
-                    <minSeverity>info</minSeverity>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>versions-maven-plugin</artifactId>
-                <version>2.1</version>
-                <reportSets>
-                    <reportSet>
-                        <reports>
-                            <report>dependency-updates-report</report>
-                            <report>plugin-updates-report</report>
-                            <report>property-updates-report</report>
-                        </reports>
-                    </reportSet>
-                </reportSets>
-            </plugin>
-        </plugins>
-    </reporting>
-    <distributionManagement>
-    </distributionManagement>
 </project>
