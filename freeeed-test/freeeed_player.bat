@@ -1,1 +1,0 @@
-​java -Xms512m -Dlog4j.configuration=file:"config/log4j.properties" -cp freeed-player.jar;drivers/truezip-driver-zip-7.7.4.jar org.freeeed.ui.FreeEedUI
