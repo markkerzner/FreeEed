@@ -25,12 +25,14 @@ import org.freeeed.mail.EmailDataProvider;
 import org.freeeed.mail.EmailUtil;
 import org.freeeed.mail.EmlParser;
 import org.freeeed.ocr.ImageTextParser;
+import org.freeeed.ocr.PdfTextParser;
 import org.freeeed.services.ContentTypeMapping;
 import org.freeeed.services.JsonParser;
 import org.freeeed.util.Util;
 import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import javax.mail.MessagingException;
 import java.io.File;
 import java.io.IOException;
@@ -47,6 +49,8 @@ public class DocumentParser {
     private static final DocumentParser INSTANCE = new DocumentParser();
     private final Tika tika;
     private static final ContentTypeMapping CONTENT_TYPE_MAPPING = new ContentTypeMapping();
+    private final String[] imageExt = new String[]{"jpg", "jpeg", "png", "bmp", "tiff"};
+    List<String> imageExtList = Arrays.asList(imageExt);
 
     public static DocumentParser getInstance() {
         return INSTANCE;
@@ -74,11 +78,14 @@ public class DocumentParser {
                 parseDateTimeReceivedFields(metadata);
                 parseDateTimeSentFields(metadata, emlParser.getSentDate());
             } else if ("pdf".equalsIgnoreCase(extension)) {
-                metadata.setDocumentText(ImageTextParser.parseContent(discoveryFile.getPath().getPath()));
+                metadata.setDocumentText(PdfTextParser.getInstance().parseContent(discoveryFile.getPath().getPath()));
+            } else if (imageExtList.contains(extension)) {
+                metadata.setDocumentText(ImageTextParser.getInstance().parseImages(discoveryFile.getPath().getPath()));
             } else {
                 inputStream = TikaInputStream.get(discoveryFile.getPath().toPath());
-                if (inputStream.available() > 0)
+                if (inputStream.available() > 0) {
                     metadata.setDocumentText(tika.parseToString(inputStream, metadata));
+                }
             }
             if (Objects.isNull(metadata.getContentType())) {
                 metadata.setContentType(extension);
