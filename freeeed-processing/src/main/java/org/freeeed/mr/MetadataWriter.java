@@ -69,7 +69,6 @@ public class MetadataWriter {
         String textEntryName = ParameterProcessing.TEXT + System.getProperty("file.separator") + metadata.getUniqueId() + "_" + originalFileName + ".txt";
         String nativeEntryName = ParameterProcessing.NATIVE + System.getProperty("file.separator") + discoveryFile.getMetadata().getUniqueId() + "_" + discoveryFile.getRealFileName();
         String ExceptionEntryName = ParameterProcessing.EXCEPTION + System.getProperty("file.separator") + discoveryFile.getMetadata().getUniqueId() + "_" + discoveryFile.getRealFileName();
-        LOGGER.info("Writing Natie to {}", tmpFolder+nativeEntryName);
         if (documentText != null && documentText.length() > 0) {
             String tepmFolder = project.getResultsDir() + System.getProperty("file.separator") + "tmp" + System.getProperty("file.separator") + textEntryName;
             File f = new File(tepmFolder);
@@ -84,7 +83,7 @@ public class MetadataWriter {
             columnMetadata.addMetadataValue(DocumentMetadata.getLinkException(), ExceptionEntryName);
         } else {
             if (project.isSendIndexToESEnabled()) {
-                ESIndex.getInstance().addBatchData(metadata,true);
+                ESIndex.getInstance().addBatchData(metadata, true);
             }
             columnMetadata.addMetadataValue(DocumentMetadata.getLinkNative(), nativeEntryName);
         }
@@ -95,28 +94,8 @@ public class MetadataWriter {
                     ParameterProcessing.DOCTFormat.format(masterOutputFileCount));
         }
 
-/*
-        //TODO: Don't make pdf of a file that is already pdf!
-        // add the pdf made from native to the PDF folder
-        String pdfNativeEntryName = ParameterProcessing.PDF_FOLDER + "\\"
-                + allMetadata.getUniqueId() + "_"
-                + new File(allMetadata.get(DocumentMetadataKeys.DOCUMENT_ORIGINAL_PATH)).getName()
-                + ".pdf";
-        BytesWritable pdfBytesWritable = (BytesWritable) value.get(new Text(ParameterProcessing.NATIVE_AS_PDF));
-        if (pdfBytesWritable != null) {
-            String tepmFolder = project.getResultsDir() + "\\tmp\\" + pdfNativeEntryName;
-            File f = new File(tepmFolder);
-            f.getParentFile().mkdirs();
-            FileUtils.writeByteArrayToFile(f, pdfBytesWritable.getBytes());
-        }
+        appendMetadata(columnMetadata.delimiterSeparatedValues(), discoveryFile.getPath().length());
 
-        BytesWritable htmlBytesWritable = (BytesWritable) value.get(new Text(ParameterProcessing.NATIVE_AS_HTML_NAME));
-        if (htmlBytesWritable != null && false) {
-            processHtmlContent(value, allMetadata, allMetadata.getUniqueId(), htmlBytesWritable);
-        }
-*/
-        ProcessingStats.getInstance().increaseItemCount(discoveryFile.getPath().length());
-        appendMetadata(columnMetadata.delimiterSeparatedValues());
     }
 
     public void packNative() {
@@ -172,6 +151,12 @@ public class MetadataWriter {
         FileUtils.writeStringToFile(metadataFile, string, Charset.defaultCharset(), true);
     }
 
+    private void appendMetadata(String string, long fsiz) throws IOException {
+        string = string + ParameterProcessing.NL;
+        FileUtils.writeStringToFile(metadataFile, string, Charset.defaultCharset(), true);
+        ProcessingStats.getInstance().increaseItemCount(fsiz);
+    }
+
     /*
         private void processHtmlContent(MapWritable value, Metadata allMetadata, String uniqueId, BytesWritable htmlBytesWritable) throws IOException {
 
@@ -215,13 +200,9 @@ public class MetadataWriter {
 
     private void prepareMetadataFile() {
         String rootDir = Project.getCurrentProject().getResultsDir();
-        String custodian = Project.getCurrentProject().getCurrentCustodian();
-//        String custodianExt = custodian.trim().length() > 0 ? "_" + custodian : "";
-        //                    + custodianExt + ".csv";
         String metadataFileName = rootDir
                 + System.getProperty("file.separator")
                 + Project.METADATA_FILE_NAME
-//                    + custodianExt + ".csv";
                 + ".csv";
         new File(rootDir).mkdir();
         metadataFile = new File(metadataFileName);
