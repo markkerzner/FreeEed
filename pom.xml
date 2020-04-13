@@ -228,24 +228,20 @@
             <dependency>
                 <groupId>org.apache.tika</groupId>
                 <artifactId>tika-core</artifactId>
-                <version>1.23</version>
+                <version>1.24</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.tika</groupId>
                 <artifactId>tika-parsers</artifactId>
-                <version>1.23</version>
+                <version>1.24</version>
             </dependency>
+            <!-- https://mvnrepository.com/artifact/net.sourceforge.tess4j/tess4j -->
             <dependency>
                 <groupId>net.sourceforge.tess4j</groupId>
                 <artifactId>tess4j</artifactId>
-                <version>3.4.2</version>
-                <exclusions>
-                    <exclusion>
-                        <artifactId>log4j-over-slf4j</artifactId>
-                        <groupId>org.slf4j</groupId>
-                    </exclusion>
-                </exclusions>
+                <version>4.5.1</version>
             </dependency>
+
         </dependencies>
     </dependencyManagement>
     <build>
