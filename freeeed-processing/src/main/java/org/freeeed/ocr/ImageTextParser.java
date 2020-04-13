@@ -53,9 +53,7 @@ public class ImageTextParser {
         instance.setDatapath("tessdata"); // path to tessdata directory
         try {
             File File = new File(file);
-            String res = instance.doOCR(File);
-            System.out.println(res);
-            return res;
+            return instance.doOCR(File);
         } catch (TesseractException e) {
             LOGGER.error("Error during image ORC {}", e.getMessage());
         }
