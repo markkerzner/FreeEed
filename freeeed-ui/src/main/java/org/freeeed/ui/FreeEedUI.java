@@ -441,7 +441,7 @@ public class FreeEedUI extends JFrame implements FreeEedUIHelper {
 
     private void myInitComponents() {
         addWindowListener(new FreeEedClosing());
-        setBounds(64, 40, 825, 500);
+        setBounds(64, 40, 835, 500);
         setResizable(false);
 
         getRootPane().setBorder(BorderFactory.createEmptyBorder());
