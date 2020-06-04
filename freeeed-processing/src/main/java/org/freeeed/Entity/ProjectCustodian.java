@@ -9,7 +9,7 @@ public class ProjectCustodian {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int projectId;
+    private int custodianId;
 
     private String name;
 
@@ -36,5 +36,9 @@ public class ProjectCustodian {
 
     public Project getProject() {
         return project;
+    }
+
+    public int getCustodianId() {
+        return custodianId;
     }
 }
