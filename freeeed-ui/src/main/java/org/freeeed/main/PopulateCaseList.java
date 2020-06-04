@@ -1,36 +1,26 @@
 package org.freeeed.main;
 
-import org.freeeed.db.DbLocalUtils;
-import org.freeeed.services.Project;
+import org.freeeed.Entity.Project;
+import org.freeeed.ServiceDao.ProjectService;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class PopulateCaseList {
 
     public static void Populate(JTable caseTable) {
         final String[] columns = new String[]{"Case ID", "Scaia ID", "Name", "Date created", ""};
-        Map<Integer, Project> projects = null;
-        try {
-            projects = DbLocalUtils.getProjects();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        List<Integer> list = new ArrayList(projects.keySet());
+        List<Project> projects = ProjectService.getInstance().getProjects();
         Object[][] data = new Object[projects.size()][4];
         int row = 0;
-        for (int projectId : list) {
-            Project project = projects.get(projectId);
-            data[row][0] = projectId;
-            data[row][1] = projectId;
-            data[row][2] = "  " + project.getProjectName();
-            data[row][3] = "  " + project.getCreated();
+        for (Project prj : projects) {
+            data[row][0] = prj.getProjectId();
+            data[row][1] = prj.getProjectId();
+            data[row][2] = "  " + prj.getName();
+            data[row][3] = "  " + prj.getCreateTime();
             row++;
         }
-
         caseTable.setModel(new DefaultTableModel(data, columns) {
             @Override
             public boolean isCellEditable(int rowIndex, int columnIndex) {

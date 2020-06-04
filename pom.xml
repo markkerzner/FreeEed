@@ -57,7 +57,6 @@
                 <artifactId>commons-io</artifactId>
                 <version>2.6</version>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
@@ -154,7 +153,6 @@
                 <artifactId>jackson-mapper-asl</artifactId>
                 <version>1.9.13</version>
             </dependency>
-
             <dependency>
                 <groupId>com.google.code.typica</groupId>
                 <artifactId>typica</artifactId>
@@ -164,7 +162,7 @@
             <dependency>
                 <groupId>com.google.code.gson</groupId>
                 <artifactId>gson</artifactId>
-                <version>2.2.2</version>
+                <version>2.8.6</version>
             </dependency>
             <dependency>
                 <groupId>com.jcraft</groupId>
@@ -176,31 +174,26 @@
                 <artifactId>sqlite-jdbc</artifactId>
                 <version>3.30.1</version>
             </dependency>
-
-            <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
                 <version>4.5.2</version>
-            </dependency><!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpcore -->
+            </dependency>
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpcore</artifactId>
                 <version>4.4.5</version>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/com.jayway.jsonpath/json-path -->
             <dependency>
                 <groupId>com.jayway.jsonpath</groupId>
                 <artifactId>json-path</artifactId>
                 <version>2.2.0</version>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/org.json/json -->
             <dependency>
                 <groupId>org.json</groupId>
                 <artifactId>json</artifactId>
                 <version>20170516</version>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/org.jsoup/jsoup -->
             <dependency>
                 <groupId>org.jsoup</groupId>
                 <artifactId>jsoup</artifactId>
@@ -221,19 +214,16 @@
                 <artifactId>tika-parsers</artifactId>
                 <version>1.24</version>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/net.sourceforge.tess4j/tess4j -->
             <dependency>
                 <groupId>net.sourceforge.tess4j</groupId>
                 <artifactId>tess4j</artifactId>
                 <version>4.5.1</version>
             </dependency>
-
         </dependencies>
     </dependencyManagement>
     <build>
         <plugins>
             <plugin>
-                <!-- This configuration must appear above the maven-clover2-plugin configuration to ensure the license is copied prior to clover instrumentation. -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <version>${dependency.plugin.version}</version>

@@ -1,0 +1,22 @@
+<?xml version = "1.0" encoding = "utf-8"?>
+<!DOCTYPE hibernate-configuration SYSTEM
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <property name="hibernate.dialect">org.hibernate.dialect.MariaDB10Dialect</property>
+        <property name="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost/freeeed</property>
+        <property name="show_sql">true</property>
+        <property name="hibernate.hbm2ddl.auto">update</property>
+        <property name="hibernate.connection.CharSet">utf8</property>
+        <property name="hibernate.connection.characterEncoding">utf8</property>
+        <property name="hibernate.connection.useUnicode">true</property>
+
+        <mapping class="org.freeeed.Entity.Project"/>
+        <mapping class="org.freeeed.Entity.ProjectCustodian"/>
+        <mapping class="org.freeeed.Entity.ProjectPath"/>
+        <mapping class="org.freeeed.Entity.ProjectFile"/>
+        <mapping class="org.freeeed.Entity.MetadataHeader"/>
+        <mapping class="org.freeeed.Entity.ProjectMetadata"/>
+    </session-factory>
+</hibernate-configuration>

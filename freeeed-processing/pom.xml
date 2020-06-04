@@ -92,12 +92,6 @@
             <groupId>com.jcraft</groupId>
             <artifactId>jsch</artifactId>
         </dependency>
-        <!--
-        <dependency>
-            <groupId>com.ibm</groupId>
-            <artifactId>notes</artifactId>
-        </dependency>
-        -->
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
@@ -158,31 +152,37 @@
             <artifactId>jackson-databind</artifactId>
             <version>2.9.10.1</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/net.lingala.zip4j/zip4j -->
         <dependency>
             <groupId>net.lingala.zip4j</groupId>
             <artifactId>zip4j</artifactId>
             <version>2.3.0</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/com.github.junrar/junrar -->
         <dependency>
             <groupId>com.github.junrar</groupId>
             <artifactId>junrar</artifactId>
             <version>4.0.0</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/com.itextpdf/itextpdf -->
         <dependency>
             <groupId>com.itextpdf</groupId>
             <artifactId>itextpdf</artifactId>
             <version>5.5.13.1</version>
         </dependency>
-
-        <!-- https://mvnrepository.com/artifact/net.sourceforge.tess4j/tess4j -->
         <dependency>
             <groupId>net.sourceforge.tess4j</groupId>
             <artifactId>tess4j</artifactId>
             <version>4.5.1</version>
         </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.19</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>5.4.13.Final</version>
+        </dependency>
+
 
 
     </dependencies>

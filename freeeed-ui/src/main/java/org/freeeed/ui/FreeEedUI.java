@@ -18,7 +18,8 @@ package org.freeeed.ui;
 
 import jiconfont.icons.google_material_design_icons.GoogleMaterialDesignIcons;
 import jiconfont.swing.IconFontSwing;
-import org.freeeed.db.DbLocalUtils;
+import org.freeeed.Entity.Project;
+import org.freeeed.ServiceDao.ProjectService;
 import org.freeeed.helpers.FreeEedUIHelper;
 import org.freeeed.listner.FreeEedClosing;
 import org.freeeed.listner.SetActiveCase;
@@ -34,10 +35,8 @@ import org.freeeed.menu.help.OpenHistory;
 import org.freeeed.menu.review.OpenElasticSearch;
 import org.freeeed.menu.review.OpenOutputFile;
 import org.freeeed.menu.review.OpenReview;
-import org.freeeed.services.*;
 import org.freeeed.staging.Staging;
 import org.freeeed.util.OsUtil;
-import org.freeeed.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +44,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.File;
 import java.text.NumberFormat;
 import java.util.List;
 
@@ -201,7 +199,7 @@ public class FreeEedUI extends JFrame implements FreeEedUIHelper {
         stageButton.setIcon(icon);
         stageButton.setEnabled(false);
         stageButton.addActionListener(e -> {
-            Project project = Project.getCurrentProject();
+            Project project = Project.getActiveProject();
             if (stageDataIsValid(project)) {
                 try {
                     int mode = 1;
@@ -376,10 +374,11 @@ public class FreeEedUI extends JFrame implements FreeEedUIHelper {
         int row = caseTable.getSelectedRow();
         if (row >= 0) {
             int projectId = (Integer) caseTable.getValueAt(row, 0);
-            int retStatus = JOptionPane.showConfirmDialog(this, "Delete project " + projectId + "?");
+            String projectName = caseTable.getValueAt(row, 2).toString().trim();
+            int retStatus = JOptionPane.showConfirmDialog(this, "Delete project " + projectName + "?");
             if (retStatus == JOptionPane.OK_OPTION) {
-                LOGGER.debug("Deleted project {}", projectId);
-                DbLocalUtils.deleteProject(projectId);
+                LOGGER.debug("Deleted project {} ID {}", projectName, projectId);
+                ProjectService.getInstance().deleteProject(projectId);
                 initCaseList();
             }
         }
@@ -394,13 +393,13 @@ public class FreeEedUI extends JFrame implements FreeEedUIHelper {
 
     }
 
-    public void initCaseList() {
+    void initCaseList() {
         caseTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         caseScrollPane.setBounds(10, 10, 800, 300);
         PopulateCaseList.Populate(caseTable);
         caseTable.setRowHeight(30);
-        caseTable.getColumnModel().getColumn(0).setMaxWidth(80);
-        caseTable.getColumnModel().getColumn(1).setMaxWidth(80);
+        caseTable.getColumnModel().getColumn(0).setMaxWidth(60);
+        caseTable.getColumnModel().getColumn(1).setMaxWidth(60);
         caseTable.getSelectionModel().addListSelectionListener(new SetActiveCase(caseTable));
         caseTable.getSelectionModel().addListSelectionListener(e -> {
             deleteButton.setEnabled(true);
