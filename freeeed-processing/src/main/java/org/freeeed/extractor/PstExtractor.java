@@ -2,9 +2,9 @@ package org.freeeed.extractor;
 
 import com.pff.*;
 import org.apache.commons.io.FileUtils;
+import org.freeeed.Entity.Project;
 import org.freeeed.mr.FreeEedMR;
 import org.freeeed.services.ProcessingStats;
-import org.freeeed.services.Project;
 import org.freeeed.services.UniqueIdGenerator;
 import org.freeeed.util.Util;
 import javax.activation.DataHandler;

@@ -39,7 +39,6 @@ import org.freeeed.staging.Staging;
 import org.freeeed.util.OsUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -80,12 +79,13 @@ public class FreeEedUI extends JFrame implements FreeEedUIHelper {
         LOGGER.info("Starting {}", Version.getVersionAndBuild());
         List<String> status = OsUtil.getSystemSummary();
         status.forEach(LOGGER::info);
+        /*
         try {
             Settings.load();
         } catch (Exception e) {
             LOGGER.error("Problem initializing internal db");
         }
-
+*/
 
         getContentPane().setBackground(Color.white);
 
@@ -198,11 +198,13 @@ public class FreeEedUI extends JFrame implements FreeEedUIHelper {
         icon = IconFontSwing.buildIcon(GoogleMaterialDesignIcons.SYNC, 16, new Color(252, 143, 53));
         stageButton.setIcon(icon);
         stageButton.setEnabled(false);
+
         stageButton.addActionListener(e -> {
             Project project = Project.getActiveProject();
             if (stageDataIsValid(project)) {
                 try {
                     int mode = 1;
+                    /*
                     if (new File(project.getStagingDir()).exists()) {
                         String[] options = new String[3];
                         options[0] = "Merge Stage";
@@ -211,12 +213,14 @@ public class FreeEedUI extends JFrame implements FreeEedUIHelper {
                         mode = JOptionPane.showOptionDialog(null, "How do you want to Stage your project?", "Select an Option...", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
                         System.out.println(mode);
                     }
+                    */
                     stageProcess(mode);
                 } catch (Exception ex) {
                     LOGGER.error("Error staging project", ex);
                 }
             }
         });
+
         getContentPane().add(stageButton);
 
         /* Proccess Button Config */
@@ -453,16 +457,12 @@ public class FreeEedUI extends JFrame implements FreeEedUIHelper {
         setTitle(ParameterProcessing.APP_NAME + ParameterProcessing.TM + " - eDiscovery, Search and Analytics Platform");
     }
 
-    public void openProject(File selectedFile) {
-        Project project = Project.loadFromFile(selectedFile);
-        project.setProjectFilePath(selectedFile.getPath());
-        LOGGER.trace("Opened project file: " + selectedFile.getPath());
-        Settings settings = Settings.getSettings();
-        settings.addRecentProject(selectedFile.getPath());
-        //showProcessingOptions();
-    }
-
     private boolean stageDataIsValid(Project project) {
+
+        System.out.println( Project.getActiveProject().getName() );
+
+
+        /*
         // check for empty input directories
         String[] dirs = project.getInputs();
         if (dirs.length == 0) {
@@ -480,12 +480,17 @@ public class FreeEedUI extends JFrame implements FreeEedUIHelper {
                 return false;
             }
         }
+        */
+
         return true;
+
+
     }
 
     private void runProcessing() throws IllegalStateException {
         LockDown();
-        Project project = Project.getCurrentProject();
+
+       /*
         if (new File(project.getResultsDir()).exists()) {
             try {
                 Util.deleteDirectory(new File(project.getResultsDir()));
@@ -493,6 +498,7 @@ public class FreeEedUI extends JFrame implements FreeEedUIHelper {
                 throw new IllegalStateException(e.getMessage());
             }
         }
+        */
         Thread th = new Thread(new ActionProcessing(this));
         th.start();
     }

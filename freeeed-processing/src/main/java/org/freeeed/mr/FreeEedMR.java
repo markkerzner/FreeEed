@@ -19,11 +19,12 @@ package org.freeeed.mr;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.commons.io.filefilter.RegexFileFilter;
+import org.freeeed.Entity.Project;
 import org.freeeed.extractor.PstExtractor;
 import org.freeeed.extractor.ZipFileExtractor;
 import org.freeeed.main.*;
 import org.freeeed.services.ProcessingStats;
-import org.freeeed.services.Project;
+
 import org.freeeed.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,9 +57,9 @@ public class FreeEedMR {
     }
 
     public void run() {
-        project = Project.getCurrentProject();
+        project = Project.getActiveProject();
         stagingFolder = new File(project.getStagingDir());
-        ProcessingStats.getInstance().setJobStarted(project.getProjectName());
+        ProcessingStats.getInstance().setJobStarted(project.getName());
         MetadataWriter metadataWriter = MetadataWriter.getInstance();
         try {
             metadataWriter.setup();

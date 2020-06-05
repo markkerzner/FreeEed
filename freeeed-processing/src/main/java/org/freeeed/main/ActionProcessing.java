@@ -16,24 +16,13 @@
  */
 package org.freeeed.main;
 
-import org.freeeed.LoadeDiscovery.DatLoader;
-import org.freeeed.data.index.ESIndex;
+import org.freeeed.Entity.Project;
 import org.freeeed.helpers.FreeEedUIHelper;
 import org.freeeed.mr.FreeEedMR;
-import org.freeeed.services.Project;
+
 import org.freeeed.services.ProcessingStats;
-import org.freeeed.services.Settings;
-import org.freeeed.util.AutomaticUICaseCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Stream;
 
 /**
  * Thread that configures Hadoop and performs data search
@@ -49,9 +38,9 @@ public class ActionProcessing implements Runnable {
     }
 
     public void process() {
-        Project project = Project.getCurrentProject();
+        Project project = Project.getActiveProject();
         ProcessingStats.getInstance().setUi(ui);
-
+/*
         if (project.isSendIndexToESEnabled()) {
             logger.info("Creating new case in FreeEed UI at: {}", Settings.getSettings().getReviewEndpoint());
             AutomaticUICaseCreator caseCreator = new AutomaticUICaseCreator();
@@ -64,22 +53,25 @@ public class ActionProcessing implements Runnable {
                 logger.info("Can not reach review services", e);
             }
         }
+*/
+        logger.info("Processing project: {}", project.getName());
 
-        logger.info("Processing project: {}", project.getProjectName());
+        /*
         if (project.getDataSource() == Project.DATA_SOURCE_BLOCKCHAIN) {
             uploadJsonToES(project);
         } else if (project.getDataSource() == Project.DATA_SOURCE_QB) {
             processQBFile(project);
         } else if (project.getDataSource() == Project.DATA_SOURCE_LOAD_FILE) {
-
             DatLoader.getInstance().run();
-
         } else {
             FreeEedMR.getInstance().run();
         }
+        */
+
+        FreeEedMR.getInstance().run();
 
     }
-
+/*
     private void uploadJsonToES(Project project) {
         int totalSize = project.getBlockTo() - project.getBlockFrom();
 
@@ -146,7 +138,7 @@ public class ActionProcessing implements Runnable {
         }
 
     }
-
+*/
     public synchronized void setInterrupted() {
         boolean interrupted = true;
     }

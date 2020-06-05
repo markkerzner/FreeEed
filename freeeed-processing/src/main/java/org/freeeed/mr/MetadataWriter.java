@@ -17,11 +17,10 @@
 package org.freeeed.mr;
 
 import org.apache.commons.io.FileUtils;
-import org.freeeed.data.index.ESIndex;
+import org.freeeed.Entity.Project;
 import org.freeeed.main.*;
 import org.freeeed.metadata.ColumnMetadata;
 import org.freeeed.main.DiscoveryFile;
-import org.freeeed.services.Project;
 import org.freeeed.services.ProcessingStats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,9 +81,11 @@ public class MetadataWriter {
         if (metadata.get(DocumentMetadataKeys.PROCESSING_EXCEPTION) != null) {
             columnMetadata.addMetadataValue(DocumentMetadata.getLinkException(), ExceptionEntryName);
         } else {
+            /*
             if (project.isSendIndexToESEnabled()) {
                 ESIndex.getInstance().addBatchData(metadata, true);
             }
+            */
             columnMetadata.addMetadataValue(DocumentMetadata.getLinkNative(), nativeEntryName);
         }
 
@@ -188,18 +189,19 @@ public class MetadataWriter {
         }
     */
     public void setup() throws IOException {
-        project = Project.getCurrentProject();
+        project = Project.getActiveProject();
         tmpFolder = project.getResultsDir() + System.getProperty("file.separator") + "tmp" + System.getProperty("file.separator");
         columnMetadata = new ColumnMetadata();
-        columnMetadata.setFieldSeparator(String.valueOf(Delimiter.getDelim(project.getFieldSeparator())));
-        columnMetadata.setAllMetadata(project.getMetadataCollect());
+//        columnMetadata.setFieldSeparator(String.valueOf(Delimiter.getDelim(project.getFieldSeparator())));
+        columnMetadata.setFieldSeparator(String.valueOf(Delimiter.getDelim("|")));
+        //columnMetadata.setAllMetadata(project.getMetadataCollect());
         // write standard metadata fields
         prepareMetadataFile();
         appendMetadata(columnMetadata.delimiterSeparatedHeaders());
     }
 
     private void prepareMetadataFile() {
-        String rootDir = Project.getCurrentProject().getResultsDir();
+        String rootDir = project.getResultsDir();
         String metadataFileName = rootDir
                 + System.getProperty("file.separator")
                 + Project.METADATA_FILE_NAME

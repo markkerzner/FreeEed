@@ -18,6 +18,9 @@ package org.freeeed.ui;
 
 import jiconfont.icons.google_material_design_icons.GoogleMaterialDesignIcons;
 import jiconfont.swing.IconFontSwing;
+import org.freeeed.Entity.ProjectPath;
+import org.freeeed.ServiceDao.CustodianService;
+import org.freeeed.ServiceDao.ProjectService;
 import org.freeeed.db.DbLocalUtils;
 import org.freeeed.main.Language_English;
 import org.freeeed.main.ParameterProcessing;
@@ -460,23 +463,22 @@ public class ProjectUI extends JDialog {
     }
 
     private boolean collectProjectInputs() {
-        Project project = Project.getCurrentProject();
-        project.setProjectName(projectNameField.getText());
+        org.freeeed.Entity.Project prj = new org.freeeed.Entity.Project(projectNameField.getText());
+
+        ProjectService.getInstance().createProject(prj);
+
         ListModel model = projectInputsList.getModel();
-        String[] dirs = new String[model.getSize()];
-        String[] custodians = new String[model.getSize()];
         for (int i = 0; i < model.getSize(); ++i) {
             String line = (String) model.getElementAt(i);
             int twodots = line.indexOf(":");
-            String custodian = line.substring(0, twodots);
-            String uri = line.substring(twodots + 2);
-            custodians[i] = custodian.trim();
-            dirs[i] = uri.trim();
+            prj.addProjectFile(
+                    new ProjectPath(
+                            line.substring(twodots + 2).trim(),
+                            CustodianService.getInstance().getCustodianByName(line.substring(0, twodots).trim(), prj),
+                            prj)
+            );
         }
-        project.setInputs(dirs);
-        project.setCustodians(custodians);
-        project.setEnvironment("local");
-        project.setCulling(cullingText.getText());
+
         return true;
     }
 
@@ -555,7 +557,7 @@ public class ProjectUI extends JDialog {
                 if (custodian == null) {
                     return;
                 }
-            }else if(dataSourceButton2.isSelected()){
+            } else if (dataSourceButton2.isSelected()) {
                 custodian = JOptionPane.showInputDialog("Please enter docId");
                 if (custodian == null) {
                     return;

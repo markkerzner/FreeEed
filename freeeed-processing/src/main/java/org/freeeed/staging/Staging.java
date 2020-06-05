@@ -18,9 +18,10 @@ package org.freeeed.staging;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.freeeed.blockchain.BlockChainUtil;
+import org.freeeed.Entity.Project;
+import org.freeeed.ServiceDao.ProjectPathService;
 import org.freeeed.helpers.FreeEedUIHelper;
-import org.freeeed.services.Project;
+
 import org.freeeed.services.Settings;
 import org.freeeed.util.Util;
 import org.slf4j.Logger;
@@ -52,7 +53,12 @@ public class Staging implements Runnable {
     private String downloadDir;
     private int totalFileCount = 0;
     private FreeEedUIHelper freeEedUIHelper;
-    int mode;
+    private int mode;
+    private int progressedFile = 0;
+
+    private Project project = Project.getActiveProject();
+    private String stagingDir = project.getStagingDir();
+
 
     public Staging() {
     }
@@ -62,7 +68,6 @@ public class Staging implements Runnable {
         this.downloadDir = Settings.getSettings().getDownloadDir();
         this.mode = mode;
     }
-
 
     public static long size(Path path) {
         final AtomicLong size = new AtomicLong(0);
@@ -106,16 +111,69 @@ public class Staging implements Runnable {
                 .count();
     }
 
-    int proggressedFile = 0;
-
-    public void stagePackageInput() throws Exception {
-        Project project = Project.getCurrentProject();
-        LOGGER.info("Staging project: {}/{}", project.getProjectCode(), project.getProjectName());
-        String stagingDir = project.getStagingDir();
+    private void stagePackageInput() throws IOException {
         totalSize = Util.calculateSize();
+        LOGGER.info("Staging project: {}/{}", project.getProjectId(), project.getName());
+        ProjectPathService.getInstance().getPathList(project).forEach(projectPath -> {
+
+
+            System.out.println(projectPath.getPath());
+            System.out.println(projectPath.getCustodian().getName());
+
+
+            System.out.println(projectPath.getProject().getStagingDir());
+
+
+            // for (int i = 0; i < dirs.length; i++) {
+            //String dir = dirs[i];
+            String custodian = projectPath.getCustodian().getName().replace(" ", "_");
+            File source = new File(projectPath.getPath());
+            String folderName = new File(projectPath.getPath()).getName();
+            File dest = null;
+                /*
+                if (project.getDataSource() == Project.DATA_SOURCE_LOAD_FILE) {
+                    dest = new File(stagingDir + System.getProperty("file.separator") + System.getProperty("file.separator") + folderName);
+                }else{
+
+                }
+                 */
+
+
+            dest = new File(stagingDir + File.separator + custodian + File.separator + folderName);
+
+            if (source.isDirectory()) {
+                dest.mkdirs();
+                try {
+                    FileUtils.copyDirectory(source, dest, pathname -> setProgressUIMessage(pathname.toString()));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                try {
+                    FileUtils.copyFile(source, dest);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                setProgressUIMessage(dest.getName());
+            }
+
+
+
+
+            //  }
+
+
+        });
+
+
+
+
+        /*
+
         String[] dirs = project.getInputs();
         String[] custodians = project.getCustodians(dirs);
         // TODO assign custodians to downloads
+
         boolean anyDownload = downloadUri(dirs);
         if (project.getDataSource() == Project.DATA_SOURCE_BLOCKCHAIN) {
             int totalBlocks = project.getBlockTo() - project.getBlockFrom();
@@ -128,6 +186,7 @@ public class Staging implements Runnable {
         }
 
         LOGGER.info("Packaging and staging the following directories for processing:");
+
 
         for (String dir : dirs) {
             Path source = Paths.get(dir);
@@ -142,32 +201,13 @@ public class Staging implements Runnable {
             FileUtils.deleteDirectory(new File(project.getStagingDir()));
         }
 
-        for (int i = 0; i < dirs.length; i++) {
-            String dir = dirs[i];
-            File source = new File(dir);
-            String folderName = new File(dir).getName();
-            File dest = null;
-            if (project.getDataSource() == Project.DATA_SOURCE_LOAD_FILE) {
-                dest = new File(stagingDir + System.getProperty("file.separator") + System.getProperty("file.separator") + folderName);
-            }else{
-                String custodian = custodians[i];
-                custodian = custodian.replace(" ", "_");
-                dest = new File(stagingDir + System.getProperty("file.separator") + custodian + System.getProperty("file.separator") + folderName);
-            }
-            if (source.isDirectory()) {
-                dest.mkdirs();
-                try {
-                    FileUtils.copyDirectory(source, dest, pathname -> setProgressUIMessage(pathname.toString()));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                FileUtils.copyFile(source, dest);
-                setProgressUIMessage(dest.getName());
-            }
-        }
+
+       */
+
+
         setDone();
         LOGGER.info("Done staging");
+
     }
 
     private boolean downloadUri(String[] dirs) throws Exception {
@@ -241,9 +281,9 @@ public class Staging implements Runnable {
     }
 
     public boolean setProgressUIMessage(String file) {
-        proggressedFile++;
+        progressedFile++;
         if (freeEedUIHelper != null) {
-            freeEedUIHelper.setProgressBarValue(proggressedFile);
+            freeEedUIHelper.setProgressBarValue(progressedFile);
             freeEedUIHelper.setProgressLabel(file);
         }
         return true;
@@ -263,7 +303,6 @@ public class Staging implements Runnable {
             ex.printStackTrace();
         }
     }
-
 
     /**
      * Holds download characteristics

@@ -72,11 +72,11 @@ public class DocumentParser {
                 EmlParser emlParser = new EmlParser(discoveryFile.getPath());
                 extractEmlFields(metadata, emlParser);
                 inputStream = TikaInputStream.get(discoveryFile.getPath().toPath());
-                String text = tika.parseToString(inputStream, metadata);
-                metadata.set(DocumentMetadataKeys.DOCUMENT_TEXT, text);
-                metadata.setContentType("message/rfc822");
-                parseDateTimeReceivedFields(metadata);
-                parseDateTimeSentFields(metadata, emlParser.getSentDate());
+                String text = tika.parseToString(inputStream);
+                //metadata.set(DocumentMetadataKeys.DOCUMENT_TEXT, text);
+                //metadata.setContentType("message/rfc822");
+                //parseDateTimeReceivedFields(metadata);
+                //parseDateTimeSentFields(metadata, emlParser.getSentDate());
             } else if ("pdf".equalsIgnoreCase(extension)) {
                 metadata.setDocumentText(PdfTextParser.getInstance().parseContent(discoveryFile.getPath().getPath()));
             } else if (imageExtList.contains(extension)) {

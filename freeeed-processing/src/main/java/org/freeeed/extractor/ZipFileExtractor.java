@@ -3,9 +3,9 @@ package org.freeeed.extractor;
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.FileHeader;
+import org.freeeed.Entity.Project;
 import org.freeeed.mr.FreeEedMR;
 import org.freeeed.services.ProcessingStats;
-import org.freeeed.services.Project;
 import org.freeeed.services.UniqueIdGenerator;
 import org.freeeed.util.Util;
 

@@ -60,6 +60,7 @@ public class FileProcessor implements Runnable {
     void initMetaData() {
         metadata = new DocumentMetadata();
         discoveryFile.setMetadata(metadata);
+        /*
         metadata.setOriginalPath(getOriginalDocumentPath(discoveryFile));
         metadata.setHasAttachments(discoveryFile.isHasAttachments());
         metadata.setHasParent(discoveryFile.isHasParent());
@@ -72,6 +73,7 @@ public class FileProcessor implements Runnable {
         metadata.setHash(hash);
         metadata.acquireUniqueId();
         metadata.setCustodian(  Util.getCustodianFromPath(discoveryFile.getPath()) );
+        */
     }
 
     boolean isPreview() {
@@ -119,11 +121,18 @@ public class FileProcessor implements Runnable {
     }
 
     void writeMetadata() {
+
+
+       // System.out.println(discoveryFile.getMetadata());
+
+/*
         try {
             MetadataWriter.getInstance().processMap(discoveryFile);
         } catch (IOException e) {
             e.printStackTrace();
         }
+*/
+
     }
 
     /**
