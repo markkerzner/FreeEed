@@ -27,17 +27,17 @@ Extensive documentation on the [wiki here](https://github.com/markkerzner/FreeEe
 
 ## How it works
 
-FreeEed is built with Hadoop, Tika, Lucene, ElasticSearch and embodies best practices in Big Data systems.
+* FreeEed is built with Hadoop, Tika, Lucene, ElasticSearch and embodies best practices in Big Data systems.
 
-## Reading, indexing, and searching data from Ethereum blockchain smart contracts
+* Reading, indexing, and searching data from Ethereum blockchain smart contracts
 
-[FreeEedReview](https://github.com/shmsoft/FreeEedUI) is a companion project that allows to do legal review of FreeEed-processed data. There are a few other nascent FreeEed* projects in the making, search them on GitHub.
+[FreeEedReview](https://github.com/shmsoft/FreeEedUI) is a companion project that allows doing legal review of FreeEed-processed data. There are a few other nascent FreeEed* projects in the making, search them on GitHub.
 
 ## To build the project
 
     mvn clean install
 
-Also look in the file [for_developers_only](https://github.com/markkerzner/FreeEed/blob/master/freeeed-processing/for_developers_only)
+Also, look in the file [for_developers_only](https://github.com/markkerzner/FreeEed/blob/master/freeeed-processing/for_developers_only)
 
 ## For assistance
 
