@@ -8,7 +8,7 @@ import java.awt.event.ActionListener;
 public class OpenHelp implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
-        String url = "http://bit.ly/3acBvZc";
+        String url = "http://bit.ly/30fiIul";
         UtilUI.openBrowser(null, url);
     }
 }
