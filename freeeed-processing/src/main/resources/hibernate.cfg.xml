@@ -13,7 +13,6 @@
         <property name="hibernate.connection.useUnicode">true</property>
         <property name="hibernate.connection.serverTimezone">UTC</property>
 
-
         <mapping class="org.freeeed.Entity.Project"/>
         <mapping class="org.freeeed.Entity.ProjectCustodian"/>
         <mapping class="org.freeeed.Entity.ProjectPath"/>
