@@ -20,6 +20,8 @@ public class ProjectCustodian {
     @JoinColumn(name = "projectId")
     private Project project;
 
+    public ProjectCustodian() {
+    }
 
     public ProjectCustodian(String name, Project project) {
         this.name = name;
