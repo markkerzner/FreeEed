@@ -31,7 +31,7 @@ public class Project {
     @Transient
     public static String METADATA_FILE_NAME = "metadata";
 
-    private static Project activeProject;
+    private static Project activeProject=null;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
