@@ -1,12 +1,10 @@
 package org.freeeed.menu.review;
 
-import org.freeeed.services.Project;
-import org.freeeed.services.Review;
+import org.freeeed.Entity.Project;
 import org.freeeed.ui.FreeEedUI;
 import org.freeeed.util.OsUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -16,14 +14,14 @@ import java.io.IOException;
 
 public class OpenOutputFile implements ActionListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(FreeEedUI.class);
+
     @Override
     public void actionPerformed(ActionEvent e) {
         if (!areResultsPresent()) {
             return;
         }
-        String resultsFolder = Project.getCurrentProject().getResultsDir();
+        String resultsFolder = Project.getActiveProject().getStagingDir();
         try {
-            // Desktop should work, but it stopped lately in Ubuntu
             if (Desktop.isDesktopSupported()) {
                 Desktop.getDesktop().open(new File(resultsFolder));
             } else if (OsUtil.isLinux()) {
@@ -39,22 +37,16 @@ public class OpenOutputFile implements ActionListener {
     }
 
     private boolean areResultsPresent() {
-
-        Project project = Project.getCurrentProject();
-        if (project == null || project.isEmpty()) {
+        Project project = Project.getActiveProject();
+        if (project == null) {
             JOptionPane.showMessageDialog(FreeEedUI.getInstance(), "Please open a project first");
             return false;
         }
-        try {
-            boolean success = Review.deliverFiles();
-            if (!success) {
-                JOptionPane.showMessageDialog(FreeEedUI.getInstance(), "No results yet");
-                return false;
-            }
-        } catch (IOException e) {
-            LOGGER.warn("Problem while checking for results", e);
-            return false;
+        File outputFolder = new File(project.getStagingDir());
+        if (outputFolder.exists()) {
+            return true;
         }
-        return true;
+        JOptionPane.showMessageDialog(FreeEedUI.getInstance(), "No results yet");
+        return false;
     }
 }
