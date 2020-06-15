@@ -23,7 +23,7 @@ public class ProjectService {
         return mInstance;
     }
 
-    public int createProject(Project project) {
+    public Project createProject(Project project) {
         return ProjectDao.getInstance().createProject(project);
     }
 
@@ -35,7 +35,12 @@ public class ProjectService {
         return ProjectDao.getInstance().getProject(projectId);
     }
 
-    public void deleteProject(int projectId){
-        ProjectDao.getInstance().deleteProject( getProject(projectId)  );
+    public void deleteProject(int projectId) {
+        ProjectDao.getInstance().deleteProject(getProject(projectId));
     }
+
+    public void updatePorject(Project prj) {
+        ProjectDao.getInstance().updateProject(prj);
+    }
+
 }

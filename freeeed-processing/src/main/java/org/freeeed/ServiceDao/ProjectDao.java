@@ -35,28 +35,33 @@ public class ProjectDao {
         return mInstance;
     }
 
-    public int createProject(Project project) {
+    Project createProject(Project project) {
         Transaction transaction = currentSession.beginTransaction();
         project.setCreateTime(new Timestamp(System.currentTimeMillis()));
         currentSession.save(project);
-        //int projectId = project.getProjectId();
+        int projectId = project.getProjectId();
         transaction.commit();
-        return 1;
+        return getProject(projectId);
     }
 
     public List<Project> getProjects() {
         return currentSession.createQuery("from Project ").list();
     }
 
-    public Project getProject(int projectId) {
+    Project getProject(int projectId) {
         return currentSession.load(Project.class, projectId);
     }
 
-    public void deleteProject(Project prj) {
+    void deleteProject(Project prj) {
         Transaction transaction = currentSession.beginTransaction();
         currentSession.delete(prj);
         transaction.commit();
     }
 
+    void updateProject(Project prj) {
+        Transaction transaction = currentSession.beginTransaction();
+        currentSession.save(prj);
+        transaction.commit();
+    }
 
 }
