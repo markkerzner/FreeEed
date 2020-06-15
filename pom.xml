@@ -152,12 +152,7 @@
                 <groupId>org.codehaus.jackson</groupId>
                 <artifactId>jackson-mapper-asl</artifactId>
                 <version>1.9.13</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.code.typica</groupId>
-                <artifactId>typica</artifactId>
-                <!-- TODO update to new version of typica, change dependencies -->
-                <version>1.4.1</version>
+
             </dependency>
             <dependency>
                 <groupId>com.google.code.gson</groupId>

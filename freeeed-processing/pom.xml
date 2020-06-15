@@ -85,10 +85,6 @@
             <artifactId>jets3t</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.google.code.typica</groupId>
-            <artifactId>typica</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.jcraft</groupId>
             <artifactId>jsch</artifactId>
         </dependency>
