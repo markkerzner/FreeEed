@@ -2,6 +2,7 @@ package org.freeeed.Entity;
 
 import org.freeeed.main.ParameterProcessing;
 import org.freeeed.services.Settings;
+
 import javax.persistence.*;
 import java.io.File;
 import java.sql.Timestamp;
@@ -11,6 +12,15 @@ import java.util.List;
 
 @Entity
 public class Project {
+
+    @Transient
+    public static int DATA_SOURCE_EDISCOVERY = 0;
+    @Transient
+    public static int DATA_SOURCE_LOAD_FILE = 1;
+    @Transient
+    public static int DATA_SOURCE_BLOCKCHAIN = 2;
+    @Transient
+    public static int DATA_SOURCE_QB = 3;
 
     @Transient
     private static final String STAGING = "staging";
@@ -34,9 +44,75 @@ public class Project {
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ProjectPath> projectPaths = new ArrayList<>();
 
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<ProjectCustodian> projectCustodians = new ArrayList<>();
+
+    public List<ProjectCustodian> getProjectCustodians() {
+        return projectCustodians;
+    }
 
     public void addProjectFile(ProjectPath projectPath) {
         projectPaths.add(projectPath);
+    }
+
+    private int dateSource;
+
+    private int outputType;
+
+    private int loadFileType;
+
+    private boolean doOcr;
+
+    private boolean doSearch;
+
+    private boolean doDenist;
+
+    public void setLoadFileType(int loadFileType) {
+        this.loadFileType = loadFileType;
+    }
+
+    public int getLoadFileType() {
+        return loadFileType;
+    }
+
+    public boolean isDoDenist() {
+        return doDenist;
+    }
+
+    public void setDoDenist(boolean doDenist) {
+        this.doDenist = doDenist;
+    }
+
+    public int getDateSource() {
+        return dateSource;
+    }
+
+    public void setDateSource(int dateSource) {
+        this.dateSource = dateSource;
+    }
+
+    public int getOutputType() {
+        return outputType;
+    }
+
+    public void setOutputType(int outputType) {
+        this.outputType = outputType;
+    }
+
+    public boolean isDoOcr() {
+        return doOcr;
+    }
+
+    public void setDoOcr(boolean doOcr) {
+        this.doOcr = doOcr;
+    }
+
+    public boolean isDoSearch() {
+        return doSearch;
+    }
+
+    public void setDoSearch(boolean doSearch) {
+        this.doSearch = doSearch;
     }
 
     public Project() {
