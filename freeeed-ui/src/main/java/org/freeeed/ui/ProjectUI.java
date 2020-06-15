@@ -18,13 +18,12 @@ package org.freeeed.ui;
 
 import jiconfont.icons.google_material_design_icons.GoogleMaterialDesignIcons;
 import jiconfont.swing.IconFontSwing;
+import org.freeeed.Entity.Project;
 import org.freeeed.Entity.ProjectPath;
 import org.freeeed.ServiceDao.CustodianService;
+import org.freeeed.ServiceDao.ProjectPathService;
 import org.freeeed.ServiceDao.ProjectService;
-import org.freeeed.db.DbLocalUtils;
 import org.freeeed.main.Language_English;
-import org.freeeed.main.ParameterProcessing;
-import org.freeeed.services.Project;
 import org.freeeed.services.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +39,9 @@ import java.util.Arrays;
  * @author mark
  */
 public class ProjectUI extends JDialog {
-    //TODO: Re-implement culling
+
+    private Project project = null;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ProjectUI.class);
     /**
      * A return status code - returned if Cancel button has been pressed
@@ -50,12 +51,33 @@ public class ProjectUI extends JDialog {
      * A return status code - returned if OK button has been pressed
      */
     public static final int RET_OK = 1;
+    /*
     private JRadioButton blockChainRadioButton;
     private JTextField fromTextField;
     private JTextField toTextField;
-
+*/
     private boolean isNewCase = true;
-    int buttonWidth = 150, buttonHeight = 25;
+    private final int buttonWidth = 150;
+    private final int buttonHeight = 25;
+
+    private JRadioButton dataSourceButton1;
+    private JRadioButton dataSourceButton2;
+    private JRadioButton dataSourceButton3;
+    private JRadioButton dataSourceButton4;
+    private JCheckBox denistCheck;
+    private JComboBox fieldSeparatorChoice;
+    private javax.swing.JComboBox<String> loadFormatChoice;
+    private JCheckBox ocrCheck;
+    private JTextField projectCodeField;
+    private JLabel projectInputsLabel;
+    private JList projectInputsList;
+    private JTextField projectNameField;
+
+    private JCheckBox createSearch;
+
+    // End of variables declaration
+    private int returnStatus = RET_CANCEL;
+
 
     /**
      * Creates new form ProcessingParametersUI
@@ -113,14 +135,10 @@ public class ProjectUI extends JDialog {
         JTabbedPane tabPanel = new JTabbedPane();
         tabPanel.setPreferredSize(new Dimension(1000, 700));
         JPanel inputsPanel = new JPanel();
-
-
         projectInputsLabel = new JLabel();
         JLabel networkHelpLabel = new JLabel();
         // Variables declaration - do not modify
-
         JButton addNetworkButton = new JButton();
-
         JScrollPane projectInputsScrollPanel = new JScrollPane();
         projectInputsList = new JList();
         dataSourceButton1 = new JRadioButton();
@@ -131,29 +149,23 @@ public class ProjectUI extends JDialog {
         JPanel stagingPanel = new JPanel();
         JPanel metadataPanel = new JPanel();
         fieldSeparatorChoice = new JComboBox();
-        standardMetadataRadio = new JRadioButton();
-        allMetadataRadio = new JRadioButton();
+        JRadioButton standardMetadataRadio = new JRadioButton();
         denistCheck = new JCheckBox();
-        textInMetadataBox = new JCheckBox();
+        JCheckBox textInMetadataBox = new JCheckBox();
         JPanel ocrPanel = new JPanel();
         ocrCheck = new JCheckBox();
-        JPanel cullingPanel = new JPanel();
-        JLabel cullingLabel = new JLabel();
         JLabel helpLabel = new JLabel();
-        JScrollPane cullingScrollPanel = new JScrollPane();
-        cullingText = new JTextArea();
         JPanel imagingPanel = new JPanel();
         JPanel jPanel2 = new JPanel();
-        createPdfImageCheckBox = new JCheckBox();
+        JCheckBox createPdfImageCheckBox = new JCheckBox();
         JLabel jLabel2 = new JLabel();
-        previewCheck = new JCheckBox();
+        JCheckBox previewCheck = new JCheckBox();
         JPanel searchPanel = new JPanel();
         JPanel jPanel5 = new JPanel();
-
-
-        Project currentProject = Project.getCurrentProject();
+        /*
         JSpinner fromBlock = new JSpinner(new SpinnerNumberModel(currentProject.getBlockFrom(), 0, Integer.MAX_VALUE, 1));
         JSpinner toBlock = new JSpinner(new SpinnerNumberModel(currentProject.getBlockTo(), 0, Integer.MAX_VALUE, 1));
+
         ((JSpinner.DefaultEditor) fromBlock.getEditor()).getTextField().setColumns(6);
         ((JSpinner.DefaultEditor) toBlock.getEditor()).getTextField().setColumns(6);
         toBlock.addChangeListener(e -> {
@@ -164,6 +176,7 @@ public class ProjectUI extends JDialog {
             int value = (int) ((JSpinner) e.getSource()).getValue();
             currentProject.setBlockFrom(value);
         });
+        */
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(WindowEvent evt) {
                 closeDialog(evt);
@@ -201,6 +214,7 @@ public class ProjectUI extends JDialog {
         projectCodeField = new JTextField();
         projectCodeField.setBounds(625, 13, 50, 25);
         getContentPane().add(projectCodeField);
+        projectCodeField.setEnabled(false);
 
         projectInputsScrollPanel.setViewportView(projectInputsList);
         projectInputsScrollPanel.setBounds(15, 60, 660, 250);
@@ -240,19 +254,15 @@ public class ProjectUI extends JDialog {
 
 
         loadFormatChoice.setModel(new DefaultComboBoxModel<>(new String[]{"DAT", "CSV", "JSON"}));
-
         dataSourcePanel.add(loadFormatChoice);
 
+        /*
         dataSourceButtonGroup.add(dataSourceButton3);
         dataSourceButton3.setText("Blockchain range : ");
         dataSourceButton3.setToolTipText("<html>\nInput comes from smart contracts in Ethereum Blockchain<br/>\n<ul>\n<li>You will have to set up Blockcain reading software on your computer</li>\n<li>And tell it what range of blocks to load\n</ul>\n</html>");
         dataSourceButton3.addActionListener(this::dataSourceButton3ActionPerformed);
-
         dataSourcePanel.add(dataSourceButton3);
-
-
         dataSourcePanel.add(fromBlock);
-
         dataSourcePanel.add(toBlock);
 
         dataSourceButtonGroup.add(dataSourceButton4);
@@ -260,7 +270,7 @@ public class ProjectUI extends JDialog {
         dataSourceButton4.setToolTipText("<html>\nInput comes from a Quickbooks files<br/>\n<ul>\n<li>Quickbooks files are CSV</li>\n<li>but broken up according to QB convenstions\n</ul>\n</html>");
         dataSourceButton4.addActionListener(this::dataSourceButton4ActionPerformed);
         dataSourcePanel.add(dataSourceButton4);
-
+        */
         dataSourcePanel.setBounds(15, 350, 660, 85);
         getContentPane().add(dataSourcePanel);
 
@@ -269,34 +279,21 @@ public class ProjectUI extends JDialog {
         settingPanel.setBorder(BorderFactory.createTitledBorder(" Setting "));
         settingPanel.setBounds(15, 435, 660, 85);
 
-
-        JLabel fieldSeparatorLabel = new JLabel("Field separator");
+        JLabel fieldSeparatorLabel = new JLabel("Output File");
         settingPanel.add(fieldSeparatorLabel);
         settingPanel.add(fieldSeparatorChoice);
-
-
-        JLabel labelMetadataCollected = new JLabel("Metadata collected");
-        settingPanel.add(labelMetadataCollected);
-
-
-        metadataButtonGroup.add(standardMetadataRadio);
-        standardMetadataRadio.setText("Standard");
-        settingPanel.add(standardMetadataRadio);
-
-        metadataButtonGroup.add(allMetadataRadio);
-        allMetadataRadio.setText("All");
-        allMetadataRadio.setSelected(true);
-        settingPanel.add(allMetadataRadio);
-
 
         ocrCheck.setSelected(true);
         ocrCheck.setText("Perform OCR");
         settingPanel.add(ocrCheck);
 
+        denistCheck.setSelected(true);
+        denistCheck.setText("Perform Denist Check");
+        settingPanel.add(denistCheck);
+
 
         createSearch = new JCheckBox("Create Search");
         settingPanel.add(createSearch);
-
 
         getContentPane().add(settingPanel);
 
@@ -307,8 +304,7 @@ public class ProjectUI extends JDialog {
             if (saveData() == false) {
                 return;
             }
-            Project project = Project.getCurrentProject();
-            DbLocalUtils.saveProject(project);
+            ProjectService.getInstance().updatePorject(project);
         } catch (Exception e) {
             LOGGER.error("Error saving project", e);
             JOptionPane.showMessageDialog(this, "Error saving project");
@@ -352,147 +348,6 @@ public class ProjectUI extends JDialog {
     }
 
     private void addFileButtonActionPerformed(ActionEvent evt) {
-        addFileInput();
-    }
-
-    private void addNetworkButtonActionPerformed(ActionEvent evt) {
-        addUriInput();
-    }
-
-    private void removeButtonActionPerformed(ActionEvent evt) {
-        removeInput();
-    }
-
-    private void dataSourceButton1ActionPerformed(ActionEvent evt) {
-        loadFormatChoice.setEnabled(false);
-        Project.getCurrentProject().setDataSource(Project.DATA_SOURCE_EDISCOVERY);
-    }
-
-    private void dataSourceButton2ActionPerformed(ActionEvent evt) {
-        loadFormatChoice.setEnabled(true);
-        Project.getCurrentProject().setDataSource(Project.DATA_SOURCE_LOAD_FILE);
-    }
-
-    private void dataSourceButton3ActionPerformed(ActionEvent evt) {
-        loadFormatChoice.setEnabled(false);
-        Project.getCurrentProject().setDataSource(Project.DATA_SOURCE_BLOCKCHAIN);
-    }
-
-    private void dataSourceButton4ActionPerformed(ActionEvent evt) {
-        Project.getCurrentProject().setDataSource(Project.DATA_SOURCE_QB);
-    }
-
-    private void doClose(int retStatus) {
-        returnStatus = retStatus;
-        setVisible(false);
-        FreeEedUI.getInstance().initCaseList();
-        dispose();
-    }
-
-    private JRadioButton allMetadataRadio;
-    private JCheckBox createPdfImageCheckBox;
-    private JTextArea cullingText;
-    private JRadioButton dataSourceButton1;
-    private JRadioButton dataSourceButton2;
-    private JRadioButton dataSourceButton3;
-    private JRadioButton dataSourceButton4;
-    private JCheckBox denistCheck;
-    private JComboBox fieldSeparatorChoice;
-    private javax.swing.JComboBox<String> loadFormatChoice;
-    private JCheckBox ocrCheck;
-    private JCheckBox previewCheck;
-    private JTextField projectCodeField;
-    private JLabel projectInputsLabel;
-    private JList projectInputsList;
-    private JTextField projectNameField;
-    private JRadioButton standardMetadataRadio;
-
-    private JCheckBox createSearch;
-
-    private JCheckBox textInMetadataBox;
-    // End of variables declaration
-    private int returnStatus = RET_CANCEL;
-
-    private void openLuceneSyntaxBrowser() {
-        String url = "http://lucene.apache.org/core/old_versioned_docs/versions/3_5_0/queryparsersyntax.html";
-        UtilUI.openBrowser(null, url);
-    }
-
-    private void openUriSyntaxBrowser() {
-        String url = "http://en.wikipedia.org/wiki/URI_scheme#Generic_syntax";
-        UtilUI.openBrowser(null, url);
-    }
-
-    private void showData() {
-        showProjectInputs();
-        showProcessingParametersData();
-    }
-
-    @SuppressWarnings("unchecked")
-    private void showProjectInputs() {
-        Project project = Project.getCurrentProject();
-        setTitle("Settings for project " + project.getProjectName());
-        projectCodeField.setText(project.getProjectCode());
-        projectNameField.setText(project.getProjectName());
-
-        DefaultListModel model = new DefaultListModel();
-        String[] dirs = project.getInputs();
-        String[] custodians = project.getCustodians(dirs);
-        if (dirs != null) {
-            for (int i = 0; i < dirs.length; ++i) {
-                String custodian = i < custodians.length ? custodians[i] : "";
-                String line = custodian + ": " + dirs[i];
-                model.addElement(line.trim());
-            }
-        }
-        int projectInputs = (dirs != null ? dirs.length : 0);
-        projectInputsLabel.setText("Project inputs (" + projectInputs + ")");
-        projectInputsList.setModel(model);
-        cullingText.setText(project.getCullingAsTextBlock());
-        String envSetting = Settings.getSettings().getEnv();
-        project.setEnvironment(envSetting);
-    }
-
-    private boolean saveData() {
-        boolean result = collectProjectInputs();
-        if (result == false) {
-            return false;
-        }
-        result = collectProcessingParametersData();
-        return result != false;
-    }
-
-    private boolean collectProjectInputs() {
-        org.freeeed.Entity.Project prj = new org.freeeed.Entity.Project(projectNameField.getText());
-
-        ProjectService.getInstance().createProject(prj);
-
-        ListModel model = projectInputsList.getModel();
-        for (int i = 0; i < model.getSize(); ++i) {
-            String line = (String) model.getElementAt(i);
-            int twodots = line.indexOf(":");
-            prj.addProjectFile(
-                    new ProjectPath(
-                            line.substring(twodots + 2).trim(),
-                            CustodianService.getInstance().getCustodianByName(line.substring(0, twodots).trim(), prj),
-                            prj)
-            );
-        }
-
-        return true;
-    }
-
-    private void removeInput() {
-        int index = projectInputsList.getSelectedIndex();
-        if (index >= 0) {
-            ((DefaultListModel) projectInputsList.getModel()).remove(index);
-        }
-        projectInputsLabel.setText("Project inputs ("
-                + projectInputsList.getModel().getSize() + ")");
-    }
-
-    @SuppressWarnings("unchecked")
-    private void addFileInput() {
         JFileChooser chooser = new JFileChooser();
         chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
         File f = null;
@@ -558,20 +413,18 @@ public class ProjectUI extends JDialog {
                     return;
                 }
             } else if (dataSourceButton2.isSelected()) {
-                custodian = JOptionPane.showInputDialog("Please enter docId");
+                custodian = JOptionPane.showInputDialog("Please enter docId column");
                 if (custodian == null) {
                     return;
                 }
             }
             ((DefaultListModel) projectInputsList.getModel()).addElement(custodian + ": " + file.getPath());
-            projectInputsLabel.setText("Project inputs ("
-                    + projectInputsList.getModel().getSize() + ")");
+            projectInputsLabel.setText("Project inputs (" + projectInputsList.getModel().getSize() + ")");
         }
         settings.setCurrentDir(file.getPath());
     }
 
-    @SuppressWarnings("unchecked")
-    private void addUriInput() {
+    private void addNetworkButtonActionPerformed(ActionEvent evt) {
         String uri = JOptionPane.showInputDialog(this, "Enter input's network locations as URI");
         if (uri == null) {
             return;
@@ -584,68 +437,129 @@ public class ProjectUI extends JDialog {
         ((DefaultListModel) projectInputsList.getModel()).addElement(custodian + ": " + uri);
     }
 
-    private void showProcessingParametersData() {
-        Project project = Project.getCurrentProject();
-        int index = 0;
-        String fieldSeparator = project.getFieldSeparator();
-        switch (fieldSeparator) {
-            case "tab":
-                index = 0;
-                break;
-            case "hex_one":
-                index = 1;
-                break;
-            case "pipe":
-                index = 2;
-                break;
-            case "carret":
-                index = 3;
-                break;
+    private void removeButtonActionPerformed(ActionEvent evt) {
+        int index = projectInputsList.getSelectedIndex();
+        if (index >= 0) {
+            String line = projectInputsList.getSelectedValue().toString();
+            int twodots = line.indexOf(":");
+            String path = line.substring(twodots + 2).trim();
+            ProjectPath pathObj = ProjectPathService.getInstance().getProjectPathbyPath(path);
+            ProjectPathService.getInstance().deletePath(pathObj);
+            ((DefaultListModel) projectInputsList.getModel()).remove(index);
         }
-        fieldSeparatorChoice.setSelectedIndex(index);
-        allMetadataRadio.setSelected("all".equals(project.getMetadataCollect()));
-        standardMetadataRadio.setSelected("standard".equals(project.getMetadataCollect()));
-        denistCheck.setSelected(project.isRemoveSystemFiles());
-        textInMetadataBox.setSelected(project.isTextInMetadata());
-        ocrCheck.setSelected(project.isOcrEnabled());
-        createSearch.setSelected(project.isSendIndexToESEnabled());
-        createPdfImageCheckBox.setSelected(project.isCreatePDF());
-        previewCheck.setSelected(project.isPreview());
-        dataSourceButton1.setSelected(project.getDataSource() == Project.DATA_SOURCE_EDISCOVERY);
-        dataSourceButton2.setSelected(project.getDataSource() == Project.DATA_SOURCE_LOAD_FILE);
-        dataSourceButton3.setSelected(project.getDataSource() == Project.DATA_SOURCE_BLOCKCHAIN);
-        dataSourceButton4.setSelected(project.getDataSource() == Project.DATA_SOURCE_QB);
-        loadFormatChoice.setEnabled(dataSourceButton2.isSelected());
-        loadFormatChoice.setSelectedItem(Project.getCurrentProject().getLoadFileFormat().toUpperCase());
+    }
+
+    private void dataSourceButton1ActionPerformed(ActionEvent evt) {
+        loadFormatChoice.setEnabled(false);
+        // Project.getCurrentProject().setDataSource(Project.DATA_SOURCE_EDISCOVERY);
+    }
+
+    private void dataSourceButton2ActionPerformed(ActionEvent evt) {
+        loadFormatChoice.setEnabled(true);
+        //Project.getCurrentProject().setDataSource(Project.DATA_SOURCE_LOAD_FILE);
+    }
+
+    private void dataSourceButton3ActionPerformed(ActionEvent evt) {
+        loadFormatChoice.setEnabled(false);
+        //Project.getCurrentProject().setDataSource(Project.DATA_SOURCE_BLOCKCHAIN);
+    }
+
+    private void dataSourceButton4ActionPerformed(ActionEvent evt) {
+        //Project.getCurrentProject().setDataSource(Project.DATA_SOURCE_QB);
+    }
+
+    private void doClose(int retStatus) {
+        returnStatus = retStatus;
+        setVisible(false);
+        FreeEedUI.getInstance().initCaseList();
+        dispose();
+    }
+
+    private void openLuceneSyntaxBrowser() {
+        String url = "http://lucene.apache.org/core/old_versioned_docs/versions/3_5_0/queryparsersyntax.html";
+        UtilUI.openBrowser(null, url);
+    }
+
+    private void openUriSyntaxBrowser() {
+        String url = "http://en.wikipedia.org/wiki/URI_scheme#Generic_syntax";
+        UtilUI.openBrowser(null, url);
+    }
+
+    private void showData() {
+        DefaultListModel model = new DefaultListModel();
+        projectInputsList.setModel(model);
+        if (!isNewCase) {
+            setTitle("Settings for project " + project.getName());
+            projectCodeField.setText(String.valueOf(project.getProjectId()));
+            projectNameField.setText(project.getName());
+            project.getProjectPaths().forEach(projectPath -> {
+                model.addElement(projectPath.getCustodian().getName() + ": " + projectPath.getPath());
+            });
+            fieldSeparatorChoice.setSelectedIndex(project.getOutputType());
+            denistCheck.setSelected(project.isDoDenist());
+            ocrCheck.setSelected(project.isDoOcr());
+            createSearch.setSelected(project.isDoSearch());
+
+            dataSourceButton1.setSelected(project.getDateSource() == Project.DATA_SOURCE_EDISCOVERY);
+            dataSourceButton2.setSelected(project.getDateSource() == Project.DATA_SOURCE_LOAD_FILE);
+            dataSourceButton3.setSelected(project.getDateSource() == Project.DATA_SOURCE_BLOCKCHAIN);
+            dataSourceButton4.setSelected(project.getDateSource() == Project.DATA_SOURCE_QB);
+
+            loadFormatChoice.setEnabled(dataSourceButton2.isSelected());
+            loadFormatChoice.setSelectedItem(project.getLoadFileType());
+        } else {
+            fieldSeparatorChoice.setSelectedIndex(0);
+            ocrCheck.setSelected(true);
+            dataSourceButton1.setSelected(true);
+        }
+    }
+
+    private boolean saveData() {
+        if (!collectProjectInputs()) {
+            return false;
+        }
+        return collectProcessingParametersData();
+    }
+
+    private boolean collectProjectInputs() {
+        if (isNewCase) {
+            Project prj = new Project(projectNameField.getText());
+            project = ProjectService.getInstance().createProject(prj);
+        }
+
+        ListModel model = projectInputsList.getModel();
+        for (int i = 0; i < model.getSize(); ++i) {
+            String line = (String) model.getElementAt(i);
+            int twodots = line.indexOf(":");
+            String path = line.substring(twodots + 2).trim();
+            if (ProjectPathService.getInstance().getProjectPatchCountByPathAndProject(path, project) == 0) {
+                project.addProjectFile(
+                        new ProjectPath(
+                                path,
+                                CustodianService.getInstance().getCustodianByName(line.substring(0, twodots).trim(), project),
+                                project
+                        )
+                );
+            }
+        }
+        return true;
     }
 
     private boolean collectProcessingParametersData() {
-        Project project = Project.getCurrentProject();
+        project.setDoOcr(ocrCheck.isSelected());
+        project.setDoSearch(createSearch.isSelected());
+        project.setDateSource(getDataSourceSelected());
+        project.setOutputType(fieldSeparatorChoice.getSelectedIndex());
+        project.setLoadFileType(loadFormatChoice.getSelectedIndex());
+        project.setDoDenist(denistCheck.isSelected());
+        if (!isNewCase) {
+            project.setName(projectNameField.getText());
+        }
+
+        ProjectService.getInstance().updatePorject(project);
+        /*
         try {
-            int index = fieldSeparatorChoice.getSelectedIndex();
-            switch (index) {
-                case 0:
-                    project.setFieldSeparator("tab");
-                    break;
-                case 1:
-                    project.setFieldSeparator("hex_one");
-                    break;
-                case 2:
-                    project.setFieldSeparator("pipe");
-                    break;
-                case 3:
-                    project.setFieldSeparator("carret");
-                    break;
-            }
-            project.setMetadataCollect(standardMetadataRadio.isSelected() ? "standard" : "all");
-            project.setRemoveSystemFiles(denistCheck.isSelected());
-            project.setTextInMetadata(textInMetadataBox.isSelected());
-            project.setOcrEnabled(ocrCheck.isSelected());
-            project.setSendIndexToESEnabled(createSearch.isSelected());
-            project.setCreatePDF(createPdfImageCheckBox.isSelected());
-            project.setPreview(previewCheck.isSelected());
-            project.setDataSource(getDataSourceSelected());
-            project.setLoadFileFormat((String) loadFormatChoice.getSelectedItem());
+
             Object from = project.get(ParameterProcessing.FROM_BLOCK);
             if (from == null) {
                 project.setBlockFrom(1);
@@ -658,6 +572,8 @@ public class ProjectUI extends JDialog {
         } catch (NumberFormatException e) {
             return false;
         }
+        */
+        return true;
     }
 
     private int getDataSourceSelected() {
@@ -673,21 +589,17 @@ public class ProjectUI extends JDialog {
 
     @Override
     public void setVisible(boolean b) {
-        if (b) {
-            Project project = Project.getCurrentProject();
-            if (project == null) {
-                JOptionPane.showMessageDialog(rootPane, "Create or open a project first");
-                return;
-            }
-            myInit();
-            projectCodeField.setEnabled(false);
-            showData();
+        if (!isNewCase) {
+            project = Project.getActiveProject();
         }
+        myInit();
+        showData();
         super.setVisible(b);
     }
 
     private void myInit() {
         fieldSeparatorChoice.removeAllItems();
+        fieldSeparatorChoice.addItem("DAT File");
         fieldSeparatorChoice.addItem("tab (\\t)");
         fieldSeparatorChoice.addItem("non-ascii one (x0001)");
         fieldSeparatorChoice.addItem("pipe (|)");
