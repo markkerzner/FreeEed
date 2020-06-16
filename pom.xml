@@ -5,7 +5,7 @@
     <packaging>pom</packaging>
     <groupId>org.freeeed</groupId>
     <artifactId>freeeed-parent</artifactId>
-    <version>8.0</version>
+    <version>8.1</version>
     <name>${project.artifactId}</name>
     <description>FreeEed</description>
     <url>www.freeeed.org</url>
