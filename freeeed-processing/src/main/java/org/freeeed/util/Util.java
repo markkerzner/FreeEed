@@ -28,6 +28,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
 
+import com.sun.istack.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.tika.metadata.Metadata;
@@ -90,7 +91,7 @@ public class Util {
         FileUtils.deleteDirectory(dir);
     }
 
-    public static String createKeyHash(File file, Metadata metadata) throws IOException {
+    public static String createKeyHash(File file,@Nullable Metadata metadata) throws IOException {
         String extension = Util.getExtension(file.getName());
         String hash = null;
         if ("eml".equalsIgnoreCase(extension) && false) {
@@ -118,7 +119,6 @@ public class Util {
         }
         return hash;
     }
-
     private static String getFileChecksum(File file) throws IOException, NoSuchAlgorithmException {
         MessageDigest digest = MessageDigest.getInstance("MD5");
         //Get file input stream for reading the file content
