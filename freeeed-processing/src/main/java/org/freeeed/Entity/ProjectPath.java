@@ -21,13 +21,6 @@ public class ProjectPath {
     @JoinColumn(name = "projectId")
     private Project project;
 
-    @OneToMany(mappedBy = "path", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<ProjectFile> projectFiles = new ArrayList<>();
-
-    public List<ProjectFile> getProjectFiles() {
-        return projectFiles;
-    }
-
     public ProjectCustodian getCustodian() {
         return custodian;
     }
