@@ -17,7 +17,10 @@
 package org.freeeed.mr;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.tika.metadata.Metadata;
 import org.freeeed.Entity.Project;
+import org.freeeed.Entity.ProjectFile;
+import org.freeeed.ServiceDao.MetadataService;
 import org.freeeed.main.*;
 import org.freeeed.metadata.ColumnMetadata;
 import org.freeeed.main.DiscoveryFile;
@@ -58,7 +61,26 @@ public class MetadataWriter {
         return mInstance;
     }
 
-    public synchronized void processMap(DiscoveryFile discoveryFile) throws IOException {
+    public synchronized void processMap(ProjectFile projectFile, Metadata metadata, String text) {
+        String[] metadataNames = metadata.names();
+        for (String name : metadataNames) {
+            while (MetadataService.headerHashMap.get(name) == null) {
+                try {
+                    Random rnRandom = new Random();
+                    long rnd = rnRandom.nextInt(3) * 1000;
+                    rnd += 1000;
+                    Thread.sleep(rnd);
+                    MetadataService.getInstance().putMetaHeaderInCache(name);
+                } catch (Exception ignored) {
+                }
+            }
+            MetadataService.getInstance().newMetaData(name, metadata.get(name), projectFile);
+        }
+
+        MetadataService.getInstance().newMetaData("text", text, projectFile);
+
+        LOGGER.info(projectFile.getFile() + " Done");
+        /*
         columnMetadata.reinit();
         DocumentMetadata metadata = discoveryFile.getMetadata();
         columnMetadata.addMetadata(metadata);
@@ -81,11 +103,9 @@ public class MetadataWriter {
         if (metadata.get(DocumentMetadataKeys.PROCESSING_EXCEPTION) != null) {
             columnMetadata.addMetadataValue(DocumentMetadata.getLinkException(), ExceptionEntryName);
         } else {
-            /*
             if (project.isSendIndexToESEnabled()) {
                 ESIndex.getInstance().addBatchData(metadata, true);
             }
-            */
             columnMetadata.addMetadataValue(DocumentMetadata.getLinkNative(), nativeEntryName);
         }
 
@@ -94,12 +114,14 @@ public class MetadataWriter {
             columnMetadata.addMetadataValue(DocumentMetadataKeys.ATTACHMENT_PARENT,
                     ParameterProcessing.DOCTFormat.format(masterOutputFileCount));
         }
-
         appendMetadata(columnMetadata.delimiterSeparatedValues(), discoveryFile.getPath().length());
+*/
+        ProcessingStats.getInstance().increaseItemCount(projectFile.getFile().length());
 
     }
 
     public void packNative() {
+        /*
         ProcessingStats.getInstance().taskIsNative();
         int indexNativeLink = 0, indexStageFile = 0, indexExceptionLink = 0;
         boolean checkingHeader = true;
@@ -132,6 +154,7 @@ public class MetadataWriter {
         }
         ProcessingStats.getInstance().taskIsCompressing();
         ResultCompressor.getInstance().process();
+        */
     }
 
     private void copyNativeFile(int indexStageFile, int indexExceptionLink, ArrayList<String> headers) throws IOException {
@@ -152,11 +175,6 @@ public class MetadataWriter {
         FileUtils.writeStringToFile(metadataFile, string, Charset.defaultCharset(), true);
     }
 
-    private void appendMetadata(String string, long fsiz) throws IOException {
-        string = string + ParameterProcessing.NL;
-        FileUtils.writeStringToFile(metadataFile, string, Charset.defaultCharset(), true);
-        ProcessingStats.getInstance().increaseItemCount(fsiz);
-    }
 
     /*
         private void processHtmlContent(MapWritable value, Metadata allMetadata, String uniqueId, BytesWritable htmlBytesWritable) throws IOException {
@@ -188,31 +206,5 @@ public class MetadataWriter {
             }
         }
     */
-    public void setup() throws IOException {
-        project = Project.getActiveProject();
-        tmpFolder = project.getResultsDir() + System.getProperty("file.separator") + "tmp" + System.getProperty("file.separator");
-        columnMetadata = new ColumnMetadata();
-//        columnMetadata.setFieldSeparator(String.valueOf(Delimiter.getDelim(project.getFieldSeparator())));
-        columnMetadata.setFieldSeparator(String.valueOf(Delimiter.getDelim("|")));
-        //columnMetadata.setAllMetadata(project.getMetadataCollect());
-        // write standard metadata fields
-        prepareMetadataFile();
-        appendMetadata(columnMetadata.delimiterSeparatedHeaders());
-    }
 
-    private void prepareMetadataFile() {
-        String rootDir = project.getResultsDir();
-        String metadataFileName = rootDir
-                + System.getProperty("file.separator")
-                + Project.METADATA_FILE_NAME
-                + ".csv";
-        new File(rootDir).mkdir();
-        metadataFile = new File(metadataFileName);
-        try {
-            metadataFile.createNewFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        LOGGER.debug("Filename: {}", metadataFileName);
-    }
 }
