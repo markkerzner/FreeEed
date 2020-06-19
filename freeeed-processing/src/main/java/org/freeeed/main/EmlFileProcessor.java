@@ -18,7 +18,9 @@ package org.freeeed.main;
 
 import java.io.File;
 import java.io.IOException;
+
 import org.apache.lucene.queryparser.classic.ParseException;
+import org.freeeed.Entity.ProjectFile;
 import org.freeeed.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,9 +32,8 @@ import org.slf4j.LoggerFactory;
 public class EmlFileProcessor extends FileProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger(EmlFileProcessor.class);
 
-    public EmlFileProcessor(DiscoveryFile discoveryFile) {
-        this.discoveryFile = discoveryFile;
-        initMetaData();
+    public EmlFileProcessor(ProjectFile projectFile) {
+        this.projectFile = projectFile;
     }
 
     public static boolean isEml(DiscoveryFile discoveryFile) {
@@ -47,7 +48,7 @@ public class EmlFileProcessor extends FileProcessor {
 
     @Override
     public String getSingleFileName() {
-        return discoveryFile.getRealFileName();
+        return projectFile.getFile().getName();
     }
 
     @Override
@@ -68,9 +69,10 @@ public class EmlFileProcessor extends FileProcessor {
         // exception message to place in output if error occurs
         String exceptionMessage = null;
         // ImageTextParser metadata, derived from Tika metadata class
-        String extension = Util.getExtension(discoveryFile.getRealFileName());
+        /*
+        String extension = Util.getExtension(projectFile.getRealFileName());
         if ("jl".equalsIgnoreCase(extension)) {
-            extractJlFields(discoveryFile);
+            extractJlFields(projectFile);
         }
         try {
             extractMetadata();
@@ -80,21 +82,25 @@ public class EmlFileProcessor extends FileProcessor {
             LOGGER.warn("Exception processing file ", e);
             exceptionMessage = e.getMessage();
         }
+        */
+
         // update exception message if error
+        /*
         if (exceptionMessage != null) {
             metadata.set(DocumentMetadataKeys.PROCESSING_EXCEPTION, exceptionMessage);
         }
         if (isResponsive || exceptionMessage != null) {
-            createImage(discoveryFile);
+            createImage(projectFile);
             if (isPreview()) {
                 try {
-                    createHtmlForDocument(discoveryFile);
+                    createHtmlForDocument(projectFile);
                 } catch (Exception e) {
                     metadata.set(DocumentMetadataKeys.PROCESSING_EXCEPTION, e.getMessage());
                 }
             }
             writeMetadata();
         }
+        */
     }
 /*
     @Override

@@ -21,11 +21,10 @@ import org.apache.commons.io.LineIterator;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tika.Tika;
 import org.apache.tika.io.TikaInputStream;
+import org.apache.tika.metadata.Metadata;
+import org.freeeed.Entity.ProjectFile;
 import org.freeeed.mail.EmailDataProvider;
 import org.freeeed.mail.EmailUtil;
-import org.freeeed.mail.EmlParser;
-import org.freeeed.ocr.ImageTextParser;
-import org.freeeed.ocr.PdfTextParser;
 import org.freeeed.services.ContentTypeMapping;
 import org.freeeed.services.JsonParser;
 import org.freeeed.util.Util;
@@ -49,8 +48,7 @@ public class DocumentParser {
     private static final DocumentParser INSTANCE = new DocumentParser();
     private final Tika tika;
     private static final ContentTypeMapping CONTENT_TYPE_MAPPING = new ContentTypeMapping();
-    private final String[] imageExt = new String[]{"jpg", "jpeg", "png", "bmp", "tiff"};
-    List<String> imageExtList = Arrays.asList(imageExt);
+
 
     public static DocumentParser getInstance() {
         return INSTANCE;
@@ -59,44 +57,58 @@ public class DocumentParser {
     private DocumentParser() {
         tika = new Tika();
         tika.setMaxStringLength(10 * 1024 * 1024);
+
+        System.out.println(CONTENT_TYPE_MAPPING);
+
     }
 
-    public void parse(DiscoveryFile discoveryFile) {
-        DocumentMetadata metadata = discoveryFile.getMetadata();
+    void parse(ProjectFile projectFile) {
         //LOGGER.debug("Parsing file: {}, original file name: {}", discoveryFile.getPath().getPath(), discoveryFile.getRealFileName());
         TikaInputStream inputStream = null;
+
+        Metadata metadata= new Metadata();
+
         try {
-            String extension = Util.getExtension(discoveryFile.getRealFileName());
+            String extension = Util.getExtension(projectFile.getFile().getName());
             //LOGGER.debug("Detected extension: {}", extension);
             if ("eml".equalsIgnoreCase(extension)) {
-                EmlParser emlParser = new EmlParser(discoveryFile.getPath());
-                extractEmlFields(metadata, emlParser);
-                inputStream = TikaInputStream.get(discoveryFile.getPath().toPath());
-                String text = tika.parseToString(inputStream);
+                //EmlParser emlParser = new EmlParser(projectFile.getPath());
+                //extractEmlFields(metadata, emlParser);
+                //inputStream = TikaInputStream.get(projectFile.getPath().toPath());
+                //String text = tika.parseToString(inputStream);
                 //metadata.set(DocumentMetadataKeys.DOCUMENT_TEXT, text);
                 //metadata.setContentType("message/rfc822");
                 //parseDateTimeReceivedFields(metadata);
                 //parseDateTimeSentFields(metadata, emlParser.getSentDate());
-            } else if ("pdf".equalsIgnoreCase(extension)) {
-                metadata.setDocumentText(PdfTextParser.getInstance().parseContent(discoveryFile.getPath().getPath()));
-            } else if (imageExtList.contains(extension)) {
-                metadata.setDocumentText(ImageTextParser.getInstance().parseImages(discoveryFile.getPath().getPath()));
-            } else {
-                inputStream = TikaInputStream.get(discoveryFile.getPath().toPath());
-                if (inputStream.available() > 0) {
-                    metadata.setDocumentText(tika.parseToString(inputStream, metadata));
-                }
             }
+/*
+            DiscoveryFile f = new DiscoveryFile(projectFile.getFile().getAbsolutePath(),projectFile.getFile().getName());
+
+
+       */
+
+
+            //getting the list of all meta data elements
+
+
+
+
+           // System.out.println(fileType);
+
+
+/*
             if (Objects.isNull(metadata.getContentType())) {
                 metadata.setContentType(extension);
             }
+
             if (!metadata.getContentType().equals("image/jpeg") && !metadata.getContentType().equals("tiff")) {
                 String fileType = CONTENT_TYPE_MAPPING.getFileType(metadata.getContentType());
                 metadata.setFiletype(fileType);
             }
+            */
         } catch (Exception e) {
             // the show must still go on
-            metadata.set(DocumentMetadataKeys.PROCESSING_EXCEPTION, e.getMessage());
+            //metadata.set(DocumentMetadataKeys.PROCESSING_EXCEPTION, e.getMessage());
             //LOGGER.error("Problem parsing file", e);
         }
     }

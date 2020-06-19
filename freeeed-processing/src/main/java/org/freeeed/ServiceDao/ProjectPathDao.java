@@ -59,7 +59,7 @@ public class ProjectPathDao {
         t.commit();
     }
 
-    public ProjectPath getProjectPathbyPath(String path) {
+    ProjectPath getProjectPathbyPath(String path) {
         return (ProjectPath) currentSession.createQuery("from ProjectPath where path=:n").setParameter("n", path).getSingleResult();
     }
 

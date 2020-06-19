@@ -9,6 +9,7 @@ public class ProjectMetadata {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int metadataId;
 
+    @Lob
     private String name;
 
 

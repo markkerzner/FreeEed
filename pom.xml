@@ -5,7 +5,7 @@
     <packaging>pom</packaging>
     <groupId>org.freeeed</groupId>
     <artifactId>freeeed-parent</artifactId>
-    <version>8.0</version>
+    <version>8.1</version>
     <name>${project.artifactId}</name>
     <description>FreeEed</description>
     <url>www.freeeed.org</url>
@@ -202,12 +202,12 @@
             <dependency>
                 <groupId>org.apache.tika</groupId>
                 <artifactId>tika-core</artifactId>
-                <version>1.24</version>
+                <version>1.24.1</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.tika</groupId>
                 <artifactId>tika-parsers</artifactId>
-                <version>1.24</version>
+                <version>1.24.1</version>
             </dependency>
             <dependency>
                 <groupId>net.sourceforge.tess4j</groupId>
