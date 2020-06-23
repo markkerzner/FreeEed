@@ -1,19 +1,16 @@
 package org.freeeed.ServiceDao;
 
 import org.freeeed.Entity.MetadataHeader;
-import org.freeeed.Entity.Project;
+import org.freeeed.Entity.ProjectFile;
 import org.freeeed.Entity.ProjectMetadata;
 import org.freeeed.util.HibernateUtil;
-import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-
 import javax.persistence.NoResultException;
 import java.util.List;
 import java.util.TimeZone;
 
 public class MetadataDao {
-
 
     private static volatile MetadataDao mInstance;
     private Session currentSession;
@@ -54,14 +51,13 @@ public class MetadataDao {
         return (MetadataHeader) currentSession.createQuery("from MetadataHeader where name=:n").setParameter("n", header).getSingleResult();
     }
 
-    List<MetadataHeader> metadataHeaderList(){
+    List<MetadataHeader> metadataHeaderList() {
         return (List<MetadataHeader>) currentSession.createQuery("from MetadataHeader").list();
     }
 
     int getMetadataHeaderCountByName(String header) {
         return currentSession.createQuery("from MetadataHeader where name=:n").setParameter("n", header).list().size();
     }
-
 
     int createMetaData(ProjectMetadata meta) {
         Session s = HibernateUtil.
@@ -74,6 +70,20 @@ public class MetadataDao {
         s.save(meta);
         transaction.commit();
         return 1;
+    }
+
+    List<MetadataHeader> getAllMetadataHeader(boolean sorted) {
+        if (sorted) {
+            return currentSession.createQuery("from MetadataHeader order by orderBy").list();
+        }
+        return currentSession.createQuery("from MetadataHeader").list();
+    }
+
+    ProjectMetadata getMetaValueByFileAndHeader(ProjectFile file, MetadataHeader header) {
+        return (ProjectMetadata) currentSession.createQuery("from ProjectMetadata where header=:h and file =:f ")
+                .setParameter("h", header)
+                .setParameter("f", file)
+                .getSingleResult();
     }
 
 
