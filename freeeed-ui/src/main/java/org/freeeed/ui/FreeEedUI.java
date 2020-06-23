@@ -21,6 +21,7 @@ import jiconfont.swing.IconFontSwing;
 import org.freeeed.Entity.Project;
 import org.freeeed.ServiceDao.MetadataService;
 import org.freeeed.ServiceDao.ProjectService;
+import org.freeeed.export.LoadFileWriter;
 import org.freeeed.helpers.FreeEedUIHelper;
 import org.freeeed.listner.FreeEedClosing;
 import org.freeeed.listner.SetActiveCase;
@@ -434,6 +435,7 @@ public class FreeEedUI extends JFrame implements FreeEedUIHelper {
             ui.setVisible(true);
         });
         MetadataService.getInstance();
+        LoadFileWriter.getInstance().createLoadFile();
     }
 
     @Override
