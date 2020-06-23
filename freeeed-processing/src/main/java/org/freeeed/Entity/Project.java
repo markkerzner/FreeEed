@@ -55,7 +55,7 @@ public class Project {
         projectPaths.add(projectPath);
     }
 
-    private int dateSource;
+    private int dataSource;
 
     private int outputType;
 
@@ -83,12 +83,12 @@ public class Project {
         this.doDenist = doDenist;
     }
 
-    public int getDateSource() {
-        return dateSource;
+    public int getDataSource() {
+        return dataSource;
     }
 
-    public void setDateSource(int dateSource) {
-        this.dateSource = dateSource;
+    public void setDataSource(int dateSource) {
+        this.dataSource = dateSource;
     }
 
     public int getOutputType() {

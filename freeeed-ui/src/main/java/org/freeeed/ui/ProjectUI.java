@@ -500,10 +500,10 @@ public class ProjectUI extends JDialog {
             ocrCheck.setSelected(project.isDoOcr());
             createSearch.setSelected(project.isDoSearch());
 
-            dataSourceButton1.setSelected(project.getDateSource() == Project.DATA_SOURCE_EDISCOVERY);
-            dataSourceButton2.setSelected(project.getDateSource() == Project.DATA_SOURCE_LOAD_FILE);
-            dataSourceButton3.setSelected(project.getDateSource() == Project.DATA_SOURCE_BLOCKCHAIN);
-            dataSourceButton4.setSelected(project.getDateSource() == Project.DATA_SOURCE_QB);
+            dataSourceButton1.setSelected(project.getDataSource() == Project.DATA_SOURCE_EDISCOVERY);
+            dataSourceButton2.setSelected(project.getDataSource() == Project.DATA_SOURCE_LOAD_FILE);
+            dataSourceButton3.setSelected(project.getDataSource() == Project.DATA_SOURCE_BLOCKCHAIN);
+            dataSourceButton4.setSelected(project.getDataSource() == Project.DATA_SOURCE_QB);
 
             loadFormatChoice.setEnabled(dataSourceButton2.isSelected());
             loadFormatChoice.setSelectedItem(project.getLoadFileType());
@@ -548,7 +548,7 @@ public class ProjectUI extends JDialog {
     private boolean collectProcessingParametersData() {
         project.setDoOcr(ocrCheck.isSelected());
         project.setDoSearch(createSearch.isSelected());
-        project.setDateSource(getDataSourceSelected());
+        project.setDataSource(getDataSourceSelected());
         project.setOutputType(fieldSeparatorChoice.getSelectedIndex());
         project.setLoadFileType(loadFormatChoice.getSelectedIndex());
         project.setDoDenist(denistCheck.isSelected());
