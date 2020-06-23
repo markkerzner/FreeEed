@@ -29,23 +29,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.nio.charset.Charset;
 import java.util.*;
 
 public class MetadataWriter {
-
-    private Project project;
     private static final Logger LOGGER = LoggerFactory.getLogger(MetadataWriter.class);
     private static volatile MetadataWriter mInstance;
-    private ColumnMetadata columnMetadata;
     private File metadataFile;
-    private ZipFileWriter zipFileWriter = new ZipFileWriter();
-    private int masterOutputFileCount;
-    protected String outputKey;
-    protected boolean isDuplicate;
     private String tmpFolder;
-    private HashMap<DiscoveryFile, String> exceptionList = new HashMap<>();
-    private HashMap<DiscoveryFile, String> nativeList = new HashMap<>();
 
     private MetadataWriter() {
     }
@@ -67,7 +57,7 @@ public class MetadataWriter {
             while (MetadataService.headerHashMap.get(name) == null) {
                 try {
                     Random rnRandom = new Random();
-                    long rnd = rnRandom.nextInt(3) * 1000;
+                    long rnd = rnRandom.nextInt(2) * 1000;
                     rnd += 1000;
                     Thread.sleep(rnd);
                     MetadataService.getInstance().putMetaHeaderInCache(name);
@@ -76,52 +66,13 @@ public class MetadataWriter {
             }
             MetadataService.getInstance().newMetaData(name, metadata.get(name), projectFile);
         }
-
-        MetadataService.getInstance().newMetaData("text", text, projectFile);
-
+        //TODO: Write text to file immediately
         LOGGER.info(projectFile.getFile() + " Done");
-        /*
-        columnMetadata.reinit();
-        DocumentMetadata metadata = discoveryFile.getMetadata();
-        columnMetadata.addMetadata(metadata);
-
-        String originalFileName = new File(metadata.get(DocumentMetadataKeys.DOCUMENT_ORIGINAL_PATH)).getName();
-        String documentText = metadata.get(DocumentMetadataKeys.DOCUMENT_TEXT);
-        String textEntryName = ParameterProcessing.TEXT + System.getProperty("file.separator") + metadata.getUniqueId() + "_" + originalFileName + ".txt";
-        String nativeEntryName = ParameterProcessing.NATIVE + System.getProperty("file.separator") + discoveryFile.getMetadata().getUniqueId() + "_" + discoveryFile.getRealFileName();
-        String ExceptionEntryName = ParameterProcessing.EXCEPTION + System.getProperty("file.separator") + discoveryFile.getMetadata().getUniqueId() + "_" + discoveryFile.getRealFileName();
-        if (documentText != null && documentText.length() > 0) {
-            String tepmFolder = project.getResultsDir() + System.getProperty("file.separator") + "tmp" + System.getProperty("file.separator") + textEntryName;
-            File f = new File(tepmFolder);
-            f.getParentFile().mkdirs();
-            BufferedWriter writer = new BufferedWriter(new FileWriter(tepmFolder));
-            writer.write(documentText);
-            writer.close();
-        }
-
-        columnMetadata.addMetadataValue(DocumentMetadata.TEXT_LINK(), textEntryName);
-        if (metadata.get(DocumentMetadataKeys.PROCESSING_EXCEPTION) != null) {
-            columnMetadata.addMetadataValue(DocumentMetadata.getLinkException(), ExceptionEntryName);
-        } else {
-            if (project.isSendIndexToESEnabled()) {
-                ESIndex.getInstance().addBatchData(metadata, true);
-            }
-            columnMetadata.addMetadataValue(DocumentMetadata.getLinkNative(), nativeEntryName);
-        }
-
-        // TODO deal with attachments
-        if (metadata.hasParent()) {
-            columnMetadata.addMetadataValue(DocumentMetadataKeys.ATTACHMENT_PARENT,
-                    ParameterProcessing.DOCTFormat.format(masterOutputFileCount));
-        }
-        appendMetadata(columnMetadata.delimiterSeparatedValues(), discoveryFile.getPath().length());
-*/
         ProcessingStats.getInstance().increaseItemCount(projectFile.getFile().length());
-
     }
 
     public void packNative() {
-        /*
+/*
         ProcessingStats.getInstance().taskIsNative();
         int indexNativeLink = 0, indexStageFile = 0, indexExceptionLink = 0;
         boolean checkingHeader = true;
@@ -154,10 +105,11 @@ public class MetadataWriter {
         }
         ProcessingStats.getInstance().taskIsCompressing();
         ResultCompressor.getInstance().process();
-        */
+*/
     }
 
     private void copyNativeFile(int indexStageFile, int indexExceptionLink, ArrayList<String> headers) throws IOException {
+/*
         String newFile;
         File f;
         File stage;
@@ -168,5 +120,6 @@ public class MetadataWriter {
             FileUtils.copyFile(stage, f);
             ProcessingStats.getInstance().addNativeCopied(stage.length());
         }
+*/
     }
 }
