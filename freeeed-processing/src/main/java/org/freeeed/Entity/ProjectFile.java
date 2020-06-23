@@ -22,11 +22,22 @@ public class ProjectFile {
     private String hash;
 
     @ManyToOne
+    @JoinColumn(nullable = true,columnDefinition = "default null")
+    private ProjectFile master;
+
+    @OneToMany(mappedBy = "master", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<ProjectFile> masterList=new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(nullable = true,columnDefinition = "default null")
+    private ProjectFile parent;
+
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<ProjectFile> parentList=new ArrayList<>();
+
+    @ManyToOne
     @JoinColumn(name = "custodianId")
     private ProjectCustodian custodian;
-
-    @OneToMany(mappedBy = "file", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<ProjectMetadata> metadataList = new ArrayList<>();
 
     public ProjectFile() {
     }
@@ -53,10 +64,6 @@ public class ProjectFile {
         this.custodian = custodian;
     }
 
-    public List<ProjectMetadata> getMetadataList() {
-        return metadataList;
-    }
-
     public String getFilePath() {
         return file;
     }
@@ -79,5 +86,25 @@ public class ProjectFile {
 
     public String getExtension() {
         return Util.getExtension(this.getFile().getName());
+    }
+
+    public ProjectFile getMaster() {
+        return master;
+    }
+
+    public void setMaster(ProjectFile master) {
+        this.master = master;
+    }
+
+    public ProjectFile getParent() {
+        return parent;
+    }
+
+    public List<ProjectFile> getMasterList() {
+        return masterList;
+    }
+
+    public List<ProjectFile> getParentList() {
+        return parentList;
     }
 }
