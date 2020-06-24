@@ -34,8 +34,8 @@ public class ProjectFileService {
         ProjectFileDao.getInstance().createProjectFile(projectFile);
     }
 
-    public List<ProjectFile> getProjectFilesByeProject(Project project) {
-        return ProjectFileDao.getInstance().getProjectFilesByeProject(project);
+    public List<ProjectFile> getProjectFilesByProject(Project project) {
+        return ProjectFileDao.getInstance().getProjectFilesByProject(project);
     }
 
 }

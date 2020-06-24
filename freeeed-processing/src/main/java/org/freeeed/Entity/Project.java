@@ -31,7 +31,18 @@ public class Project {
     @Transient
     public static String METADATA_FILE_NAME = "metadata";
 
-    private static Project activeProject=null;
+    @Transient
+    public static int OUTPUT_DAT = 0;
+    @Transient
+    public static int OUTPUT_TAB = 1;
+    @Transient
+    public static int OUTPUT_ASCII = 2;
+    @Transient
+    public static int OUTPUT_PIPE = 3;
+    @Transient
+    public static int OUTPUT_CARRET = 4;
+
+    private static Project activeProject = null;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -55,7 +66,7 @@ public class Project {
         projectPaths.add(projectPath);
     }
 
-    private int dateSource;
+    private int dataSource;
 
     private int outputType;
 
@@ -83,12 +94,12 @@ public class Project {
         this.doDenist = doDenist;
     }
 
-    public int getDateSource() {
-        return dateSource;
+    public int getDataSource() {
+        return dataSource;
     }
 
-    public void setDateSource(int dateSource) {
-        this.dateSource = dateSource;
+    public void setDataSource(int dateSource) {
+        this.dataSource = dateSource;
     }
 
     public int getOutputType() {
@@ -182,6 +193,14 @@ public class Project {
 
     public String getResultsDir() {
         return getOutputDir() + File.separator + RESULTS;
+    }
+
+    public String getOutputExtension() {
+        if (getOutputType() == 0) {
+            return "dat";
+        } else {
+            return "csv";
+        }
     }
 
 }

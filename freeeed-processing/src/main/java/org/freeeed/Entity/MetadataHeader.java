@@ -11,12 +11,16 @@ public class MetadataHeader {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int metadataId;
 
-    @Column(unique=true)
     private String name;
+
+    @Column(columnDefinition = "default 20")
+    private int orderBy;
+
+    @Column(columnDefinition = "default 0")
+    private int FieldType;
 
     @OneToMany(mappedBy = "header", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ProjectMetadata> projectPaths = new ArrayList<>();
-
 
     public MetadataHeader() {
     }
@@ -27,6 +31,8 @@ public class MetadataHeader {
 
     public MetadataHeader(String name) {
         this.name = name;
+        orderBy = 10;
+        FieldType = 0;
     }
 
     public int getMetadataId() {
@@ -39,5 +45,13 @@ public class MetadataHeader {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public int getOrderBy() {
+        return orderBy;
+    }
+
+    public int getFieldType() {
+        return FieldType;
     }
 }

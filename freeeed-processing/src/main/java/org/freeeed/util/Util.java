@@ -41,9 +41,9 @@ public class Util {
 
     public static String getCustodianFromPath(File f) {
         String[] pathParts;
-        if(OsUtil.isWindows()){
-           pathParts = f.getPath().split("\\\\");
-        }else{
+        if (OsUtil.isWindows()) {
+            pathParts = f.getPath().split("\\\\");
+        } else {
             pathParts = f.getPath().split(System.getProperty("file.separator"));
         }
 
@@ -74,8 +74,8 @@ public class Util {
         return builder.toString();
     }
 
-    public static boolean isSystemFile(DiscoveryFile discoveryFile) {
-        String ext = Util.getExtension(discoveryFile.getRealFileName());
+    public static boolean isSystemFile(File file) {
+        String ext = Util.getExtension(file.getName());
         List<String> systemExt = Arrays.asList("exe", "msi");
         return systemExt.contains(ext);
     }
@@ -91,7 +91,7 @@ public class Util {
         FileUtils.deleteDirectory(dir);
     }
 
-    public static String createKeyHash(File file,@Nullable Metadata metadata) throws IOException {
+    public static String createKeyHash(File file, @Nullable Metadata metadata) throws IOException {
         String extension = Util.getExtension(file.getName());
         String hash = null;
         if ("eml".equalsIgnoreCase(extension) && false) {
@@ -119,6 +119,7 @@ public class Util {
         }
         return hash;
     }
+
     private static String getFileChecksum(File file) throws IOException, NoSuchAlgorithmException {
         MessageDigest digest = MessageDigest.getInstance("MD5");
         //Get file input stream for reading the file content

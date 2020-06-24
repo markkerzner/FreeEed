@@ -41,7 +41,7 @@ class ProjectFileDao {
         transaction.commit();
     }
 
-    List<ProjectFile> getProjectFilesByeProject(Project project) {
+    List<ProjectFile> getProjectFilesByProject(Project project) {
         return currentSession.createQuery("from ProjectFile where custodian in (from ProjectCustodian where project=:prj)").setParameter("prj", project).list();
     }
 
