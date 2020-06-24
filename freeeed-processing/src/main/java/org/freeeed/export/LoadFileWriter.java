@@ -58,7 +58,7 @@ public class LoadFileWriter {
         if (project.getOutputType() == Project.OUTPUT_DAT) {
             preFix = "\u00FE";
             postFix = "\u00FE";
-            middleFix = "\u0014";
+            middleFix = "¶";
         } else if (project.getOutputType() == Project.OUTPUT_TAB) {
             preFix = "";
             postFix = "";
