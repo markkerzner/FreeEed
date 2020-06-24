@@ -21,12 +21,15 @@ import org.freeeed.Entity.MetadataHeader;
 import org.freeeed.Entity.Project;
 import org.freeeed.ServiceDao.MetadataService;
 import org.freeeed.ServiceDao.ProjectFileService;
+import org.freeeed.ServiceDao.ProjectService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.persistence.NoResultException;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.Iterator;
+import java.util.List;
 
 public class LoadFileWriter {
     private static Project project;
@@ -34,6 +37,7 @@ public class LoadFileWriter {
     private static final Logger LOGGER = LoggerFactory.getLogger(LoadFileWriter.class);
     private File metadataFile;
     private String preFix, postFix, middleFix;
+    private List<MetadataHeader> metadataHeaders = MetadataService.getInstance().getAllMetadataHeader(true);
 
     private LoadFileWriter() {
     }
@@ -95,8 +99,12 @@ public class LoadFileWriter {
 
     private void createMetadataFileHeader() {
         String lineToAdd = "";
-        for (MetadataHeader header : MetadataService.getInstance().getAllMetadataHeader(true)) {
-            lineToAdd += preFix + header.getName() + postFix + middleFix;
+        for (Iterator<MetadataHeader> i = metadataHeaders.iterator(); i.hasNext(); ) {
+            MetadataHeader header = i.next();
+            lineToAdd += preFix + header.getName() + postFix;
+            if (i.hasNext()) {
+                lineToAdd += middleFix;
+            }
         }
         lineToAdd += "\n";
         appendMetadata(lineToAdd);
@@ -105,35 +113,39 @@ public class LoadFileWriter {
     private void populateMetadataFile() {
         ProjectFileService.getInstance().getProjectFilesByProject(project).forEach(projectFile -> {
             String lineToAdd = "";
-            for (MetadataHeader header : MetadataService.getInstance().getAllMetadataHeader(true)) {
+            for (Iterator<MetadataHeader> i = metadataHeaders.iterator(); i.hasNext(); ) {
+                MetadataHeader header = i.next();
                 if (header.getFieldType() == 1) {
-                    lineToAdd += preFix + projectFile.getFileId() + postFix + middleFix;
+                    lineToAdd += preFix + projectFile.getFileId() + postFix;
                 } else if (header.getFieldType() == 2) {
-                    lineToAdd += preFix + projectFile.getCustodian().getName() + postFix + middleFix;
+                    lineToAdd += preFix + projectFile.getCustodian().getName() + postFix;
                 } else if (header.getFieldType() == 3) {
-                    lineToAdd += preFix + projectFile.getHash() + postFix + middleFix;
+                    lineToAdd += preFix + projectFile.getHash() + postFix;
                 } else if (header.getFieldType() == 4) {
-                    lineToAdd += 0 + postFix + middleFix;
+                    lineToAdd += 0 + postFix;
                 } else if (header.getFieldType() == 5) {
                     if (projectFile.getParent() != null) {
-                        lineToAdd += preFix + projectFile.getParent().getFileId() + postFix + middleFix;
+                        lineToAdd += preFix + projectFile.getParent().getFileId() + postFix;
                     } else {
-                        lineToAdd += preFix + "-" + postFix + middleFix;
+                        lineToAdd += preFix + projectFile.getFileId() + postFix;
                     }
                 } else if (header.getFieldType() == 6) {
-                    lineToAdd += preFix + projectFile.getFile().getName() + postFix + middleFix;
+                    lineToAdd += preFix + projectFile.getFile().getName() + postFix;
                 } else if (header.getFieldType() == 7) {
                     if (projectFile.getMaster() != null) {
-                        lineToAdd += preFix + projectFile.getMaster().getFileId() + postFix + middleFix;
+                        lineToAdd += preFix + projectFile.getMaster().getFileId() + postFix;
                     } else {
-                        lineToAdd += preFix + "-" + postFix + middleFix;
+                        lineToAdd += preFix + "" + postFix;
                     }
                 } else if (header.getFieldType() == 0) {
                     try {
-                        lineToAdd += preFix + MetadataService.getInstance().getMetaValueByFileAndHeader(projectFile, header).getName() + postFix + middleFix;
+                        lineToAdd += preFix + MetadataService.getInstance().getMetaValueByFileAndHeader(projectFile, header).getName() + postFix;
                     } catch (NoResultException e) {
-                        lineToAdd += preFix + " " + postFix + middleFix;
+                        lineToAdd += preFix + "" + postFix;
                     }
+                }
+                if (i.hasNext()) {
+                    lineToAdd += middleFix;
                 }
             }
             lineToAdd += "\n";
