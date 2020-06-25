@@ -1,6 +1,10 @@
-package org.freeeed.main;
+package org.freeeed.Processor;
 
+import org.apache.tika.io.TikaInputStream;
 import org.freeeed.Entity.ProjectFile;
+import org.freeeed.Processor.FileProcessor;
+
+import java.io.IOException;
 
 public class SystemFileProcessor extends FileProcessor {
 
@@ -10,6 +14,9 @@ public class SystemFileProcessor extends FileProcessor {
 
     @Override
     public void run() {
+
+
+
         /*
         DocumentMetadata metadata = new DocumentMetadata();
         projectFile.setMetadata(metadata);
@@ -21,6 +28,6 @@ public class SystemFileProcessor extends FileProcessor {
         metadata.acquireUniqueId();
         metadata.set(DocumentMetadataKeys.PROCESSING_EXCEPTION, "System File");
         writeMetadata();
-        */
+*/
     }
 }

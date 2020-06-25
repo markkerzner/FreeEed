@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.freeeed.main;
+package org.freeeed.Processor;
 
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.Tesseract;
@@ -28,6 +28,7 @@ import org.freeeed.Entity.ProjectFile;
 import org.freeeed.mr.MetadataWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -41,10 +42,10 @@ public class FileProcessor implements Runnable {
     private Project project = Project.getActiveProject();
     private String singleFileName;
     ProjectFile projectFile;
-    private Metadata metadata = new Metadata();
+    protected Metadata metadata = new Metadata();
     private final String[] imageExt = new String[]{"jpg", "jpeg", "png", "bmp", "tiff"};
     List<String> imageExtList = Arrays.asList(imageExt);
-    private Tika tika;
+    protected Tika tika;
     String exceptionMessage = null;
     private String text = null;
     private static final String EMPTY = "";
@@ -97,14 +98,13 @@ public class FileProcessor implements Runnable {
     public void run() {
         LOGGER.trace("Processing file: {} - {}", projectFile.getFile().getName(), project.getName());
         try {
-            TikaInputStream inputStream = TikaInputStream.get(projectFile.getFile().toPath(), metadata);
+            TikaInputStream inputStream = TikaInputStream.get(projectFile.getFile().toPath());
             if ("pdf".equalsIgnoreCase(projectFile.getExtension()) || imageExtList.contains(projectFile.getExtension())) {
-                tika.parseToString(inputStream);
+                tika.parseToString(inputStream, metadata);
                 text = ocrFile(projectFile.getFile().getPath());
-                System.out.println("Text");
             } else {
                 if (inputStream.available() > 0) {
-                    text = tika.parseToString(inputStream);
+                    text = tika.parseToString(inputStream, metadata);
                 }
             }
             inputStream.close();
