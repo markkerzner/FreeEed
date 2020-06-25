@@ -13,7 +13,7 @@ public class MetadataHeader {
 
     private String name;
 
-    @Column(columnDefinition = "integer default 20")
+    @Column(columnDefinition = "integer default 100")
     private int orderBy;
 
     @Column(columnDefinition = "integer default 0")
@@ -31,7 +31,7 @@ public class MetadataHeader {
 
     public MetadataHeader(String name) {
         this.name = name;
-        orderBy = 10;
+        orderBy = 100;
         FieldType = 0;
     }
 
