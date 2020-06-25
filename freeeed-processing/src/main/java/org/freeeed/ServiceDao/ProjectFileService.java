@@ -31,11 +31,28 @@ public class ProjectFileService {
         } catch (IOException e) {
             LOGGER.error(e.toString());
         }
-        ProjectFileDao.getInstance().createProjectFile(projectFile);
+        projectFile.setFileSize(projectFile.getFile().length());
+        projectFile.setExtension(Util.getExtension(projectFile.getFile().getName()));
+        if (!ProjectFileService.getInstance().isFileExists(projectFile)) {
+            ProjectFileDao.getInstance().createProjectFile(projectFile);
+        }
     }
 
     public List<ProjectFile> getProjectFilesByProject(Project project) {
         return ProjectFileDao.getInstance().getProjectFilesByProject(project);
     }
+
+    public boolean isFileExists(ProjectFile projectFile) {
+        return ProjectFileDao.getInstance().isFileExists(projectFile);
+    }
+
+    public long getProjectSize(Project project) {
+        return ProjectFileDao.getInstance().getProjectSize(project);
+    }
+
+    public int getProjectFileCount(Project project) {
+        return ProjectFileDao.getInstance().getProjectFileCount(project);
+    }
+
 
 }
