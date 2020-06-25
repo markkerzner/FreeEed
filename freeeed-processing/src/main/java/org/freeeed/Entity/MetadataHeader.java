@@ -13,10 +13,10 @@ public class MetadataHeader {
 
     private String name;
 
-    @Column(columnDefinition = "default 20")
+    @Column(columnDefinition = "integer default 20")
     private int orderBy;
 
-    @Column(columnDefinition = "default 0")
+    @Column(columnDefinition = "integer default 0")
     private int FieldType;
 
     @OneToMany(mappedBy = "header", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
