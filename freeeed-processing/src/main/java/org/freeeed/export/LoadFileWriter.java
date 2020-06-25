@@ -21,7 +21,8 @@ import org.freeeed.Entity.MetadataHeader;
 import org.freeeed.Entity.Project;
 import org.freeeed.ServiceDao.MetadataService;
 import org.freeeed.ServiceDao.ProjectFileService;
-import org.freeeed.ServiceDao.ProjectService;
+import org.freeeed.mr.MetadataWriter;
+import org.freeeed.services.ProcessingStats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.persistence.NoResultException;
@@ -66,7 +67,7 @@ public class LoadFileWriter {
         } else if (project.getOutputType() == Project.OUTPUT_ASCII) {
             preFix = "";
             postFix = "";
-            middleFix = "\t";
+            middleFix = "\u0001";
         } else if (project.getOutputType() == Project.OUTPUT_CARRET) {
             preFix = "";
             postFix = "";
@@ -151,6 +152,7 @@ public class LoadFileWriter {
             lineToAdd += "\n";
             appendMetadata(lineToAdd);
         });
+        MetadataWriter.getInstance().packNative();
     }
 
     private void appendMetadata(String string) {
@@ -162,6 +164,7 @@ public class LoadFileWriter {
     }
 
     public void createLoadFile() {
+        ProcessingStats.getInstance().taskIsLoadCreator();
         setup();
         prepareMetadataFile();
         createMetadataFileHeader();
