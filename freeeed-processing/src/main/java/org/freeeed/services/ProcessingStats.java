@@ -18,12 +18,12 @@ package org.freeeed.services;
 
 import com.google.gson.Gson;
 import org.apache.commons.io.FileUtils;
+import org.freeeed.Entity.Project;
+import org.freeeed.export.LoadFileWriter;
 import org.freeeed.helpers.FreeEedUIHelper;
-import org.freeeed.mr.MetadataWriter;
 import org.freeeed.mr.ResultCompressor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -37,12 +37,11 @@ import java.util.Map;
  */
 public class ProcessingStats {
     private static volatile ProcessingStats mInstance;
-    private Project project = Project.getCurrentProject();
+    private Project project = Project.getActiveProject() ;
     private NumberFormat nf = NumberFormat.getInstance();
     private Logger LOGGER = LoggerFactory.getLogger(ProcessingStats.class);
     private Date jobStarted = new Date(), jobFinished = new Date();
     private FreeEedUIHelper ui = null;
-
     private int doneItem = 0, totalItem = 0;
     private int zipFilExtracted = 0;
     private int pstFileExtracted = 0;
@@ -54,7 +53,6 @@ public class ProcessingStats {
     private long zipExtractedSize = 0;
     private long pstExtractedSize = 0;
     private long nativeSize = 0;
-
 
     private ProcessingStats() {
     }
@@ -86,8 +84,22 @@ public class ProcessingStats {
 
     public void taskIsTika() {
         if (ui != null) {
-            ui.setProgressLabel("Processing files...");
+            ui.setProgressLabel("Starting file Processor...");
             ui.setProgressIndeterminate(false);
+        }
+    }
+
+    public void taskIsTika(String fileName,String currentMeta) {
+        if (ui != null) {
+            ui.setProgressLabel("Processing "+fileName+", Inserting "+currentMeta);
+            ui.setProgressIndeterminate(false);
+        }
+    }
+
+    public void taskIsLoadCreator() {
+        if (ui != null) {
+            ui.setProgressLabel("Creating Load file...");
+            ui.setProgressIndeterminate(true);
         }
     }
 
@@ -149,13 +161,13 @@ public class ProcessingStats {
             sizeType = 2;
         }
         this.totalSize = totalSize;
-        if (ui != null) {
-            ui.setProgressBarMaximum((int) this.totalSize);
-        }
     }
 
     public void setTotalItem(int totalItem) {
         this.totalItem = totalItem;
+        if (ui != null) {
+            ui.setProgressBarMaximum(totalItem);
+        }
     }
 
     public void setUi(FreeEedUIHelper ui) {
@@ -233,11 +245,12 @@ public class ProcessingStats {
             doneSizeToShow = (doneSize / 1024) / 1024;
         }
         if (ui != null) {
-            ui.setProgressBarValue((int) doneSizeToShow);
+            ui.setProgressBarValue(doneItem);
             ui.setProgressedSize(nf.format(doneSizeToShow) + sizeTypeLabel + "/" + nf.format(totalSize) + sizeTypeLabel);
         }
         if (doneItem == totalItem) {
-            MetadataWriter.getInstance().packNative();
+            LOGGER.info("Packing Files");
+            LoadFileWriter.getInstance().createLoadFile();
         }
     }
 
