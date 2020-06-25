@@ -152,7 +152,7 @@ public class LoadFileWriter {
             lineToAdd += "\n";
             appendMetadata(lineToAdd);
         });
-        MetadataWriter.getInstance().packNative();
+        NativeCreator.getInstance().packNative();
     }
 
     private void appendMetadata(String string) {
