@@ -7,6 +7,7 @@ import org.freeeed.util.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import javax.persistence.NoResultException;
+import java.io.*;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -41,6 +42,21 @@ public class MetadataDao {
         int metaId = header.getMetadataId();
         transaction.commit();
         return getMetaHeader(metaId);
+    }
+
+    void populateMetadata() {
+        currentSession.beginTransaction();
+        File file = new File(getClass().getClassLoader().getResource("import.sql").getFile());
+        try (FileReader reader = new FileReader(file);
+             BufferedReader br = new BufferedReader(reader)) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                currentSession.createSQLQuery(line).executeUpdate();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        currentSession.getTransaction().commit();
     }
 
     MetadataHeader getMetaHeader(int metaId) {
