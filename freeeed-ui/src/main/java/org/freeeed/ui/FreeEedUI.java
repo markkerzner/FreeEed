@@ -435,7 +435,6 @@ public class FreeEedUI extends JFrame implements FreeEedUIHelper {
             ui.setVisible(true);
         });
         MetadataService.getInstance();
-        LoadFileWriter.getInstance().createLoadFile();
     }
 
     @Override

@@ -20,9 +20,9 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.freeeed.Entity.Project;
-import org.freeeed.Entity.ProjectCustodian;
 import org.freeeed.Entity.ProjectFile;
-import org.freeeed.ServiceDao.CustodianService;
+import org.freeeed.Processor.FileProcessor;
+import org.freeeed.Processor.SystemFileProcessor;
 import org.freeeed.ServiceDao.ProjectFileService;
 import org.freeeed.extractor.PstExtractor;
 import org.freeeed.extractor.ZipFileExtractor;
@@ -34,10 +34,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 public class FreeEedMR {
@@ -81,9 +77,7 @@ public class FreeEedMR {
     private void processStageZipFiles() {
         List<File> files = (List<File>) FileUtils.listFiles(stagingFolder, new RegexFileFilter("^(.*zip)"), DirectoryFileFilter.DIRECTORY);
         zipFileToExtract = files.size();
-        files.forEach(temp -> {
-            ExecutorPool.getInstance().getExecutorService().execute(new ZipFileExtractor(project, temp));
-        });
+        files.forEach(temp -> ExecutorPool.getInstance().getExecutorService().execute(new ZipFileExtractor(project, temp)));
     }
 
     public void reducePSTFile() {
@@ -97,9 +91,7 @@ public class FreeEedMR {
     private void processStagePSTFile() {
         List<File> files = (List<File>) FileUtils.listFiles(stagingFolder, new RegexFileFilter("^(.*pst)"), DirectoryFileFilter.DIRECTORY);
         pstFileToExtract = files.size();
-        files.forEach(temp -> {
-            ExecutorPool.getInstance().getExecutorService().execute(new PstExtractor(project, temp));
-        });
+        files.forEach(temp -> ExecutorPool.getInstance().getExecutorService().execute(new PstExtractor(project, temp)));
     }
 
     /**
@@ -123,45 +115,31 @@ public class FreeEedMR {
     private void mainProcess() {
         LOGGER.info("Starting Main Process");
         List<File> files = (List<File>) FileUtils.listFiles(stagingFolder, new RegexFileFilter("^(.*?)"), DirectoryFileFilter.DIRECTORY);
-        ProcessingStats.getInstance().setTotalItem(files.size());
-        files.forEach(temp -> totalSize += temp.length());
-        ProcessingStats.getInstance().setTotalSize(totalSize);
 
         files.forEach(temp -> {
             ProjectFile file = new ProjectFile(temp.getAbsolutePath(), project);
             ProjectFileService.getInstance().createProjectFile(file);
         });
 
-        List<ProjectFile> projectFiles = ProjectFileService.getInstance().getProjectFilesByeProject(project);
-        projectFiles.forEach(temp->{
+        ProcessingStats.getInstance().setTotalItem(ProjectFileService.getInstance().getProjectFileCount(project));
+        ProcessingStats.getInstance().setTotalSize(ProjectFileService.getInstance().getProjectSize(project));
 
 
+        List<ProjectFile> projectFiles = ProjectFileService.getInstance().getProjectFilesByProject(project);
+        projectFiles.forEach(temp -> {
             Runnable fileProcessor = null;
-            /*
+/*
             if (EmlFileProcessor.isEml(discoveryFile)) {
-                fileProcessor = new EmlFileProcessor(discoveryFile);
-            } else if (Util.isSystemFile(discoveryFile)) {
-                fileProcessor = new SystemFileProcessor(discoveryFile);
+              //  fileProcessor = new EmlFileProcessor(discoveryFile);
+            } else
+*/
+            if (Util.isSystemFile(temp.getFile())) {
+                fileProcessor = new SystemFileProcessor(temp);
             } else {
-                fileProcessor = new FileProcessor(discoveryFile);
+                fileProcessor = new FileProcessor(temp);
             }
-            */
-            fileProcessor = new FileProcessor(temp);
-
             ExecutorPool.getInstance().getExecutorService().execute(fileProcessor);
-
-
-
-
         });
-
-        /*
-        files.forEach(temp -> {
-            DiscoveryFile discoveryFile = new DiscoveryFile(temp.toString(), temp.getName(), false);
-            discoveryFile.setCustodian("Need custodian!");
-
-        });
-        */
 
     }
 

@@ -16,11 +16,13 @@ public class MetadataService {
 
     public static volatile HashMap<String, MetadataHeader> headerHashMap = new HashMap<>();
 
-    public static volatile HashMap<String, Boolean> headerWorkingOn = new HashMap<>();
-
+    private static volatile HashMap<String, Boolean> headerWorkingOn = new HashMap<>();
 
     private MetadataService() {
-        System.out.println("Hello");
+        if( this.getAllMetadataHeader(true).size()==0 ){
+            LOGGER.info("Populating Metadata header table");
+            MetadataDao.getInstance().populateMetadata();
+        }
         MetadataDao.getInstance().metadataHeaderList().forEach(header -> headerHashMap.put(header.getName(), header));
     }
 
@@ -41,7 +43,6 @@ public class MetadataService {
         return MetadataDao.getInstance().getAllMetadataHeader(sorted);
     }
 
-
     public void putMetaHeaderInCache(String metaHeader) {
         if (MetadataService.headerWorkingOn.get(metaHeader) == null) {
             headerWorkingOn.put(metaHeader, true);
@@ -57,7 +58,6 @@ public class MetadataService {
         }
     }
 
-
     public void newMetaData(String metaHeader, String metaValue, ProjectFile file) {
         ProjectMetadata m = new ProjectMetadata(metaValue, headerHashMap.get(metaHeader), file);
         MetadataDao.getInstance().createMetaData(m);
@@ -66,6 +66,5 @@ public class MetadataService {
     public ProjectMetadata getMetaValueByFileAndHeader(ProjectFile file, MetadataHeader header) {
         return MetadataDao.getInstance().getMetaValueByFileAndHeader(file, header);
     }
-
 
 }

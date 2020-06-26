@@ -45,5 +45,24 @@ class ProjectFileDao {
         return currentSession.createQuery("from ProjectFile where custodian in (from ProjectCustodian where project=:prj)").setParameter("prj", project).list();
     }
 
+    boolean isFileExists(ProjectFile projectFile) {
+        return currentSession.createQuery("from ProjectFile where hash=:f")
+                .setParameter("f", projectFile.getHash()).list().size() > 0;
+    }
+
+
+    long getProjectSize(Project project) {
+        return (long) currentSession.createQuery("select sum(fileSize) from ProjectFile where custodian in (from ProjectCustodian where project=:prj)")
+                .setParameter("prj", project)
+                .getSingleResult();
+    }
+
+    int getProjectFileCount(Project project) {
+        //TODO: A better way than this mess!
+        return Integer.parseInt(String.valueOf(currentSession.createQuery("select count(fileId) from ProjectFile where custodian in (from ProjectCustodian where project=:prj)")
+                .setParameter("prj", project)
+                .getSingleResult()));
+    }
+
 
 }
