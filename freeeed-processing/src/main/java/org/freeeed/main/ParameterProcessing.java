@@ -139,10 +139,6 @@ public class ParameterProcessing {
     public static String PROCESS_TIMEOUT_SEC = "process_timeout_sec";
     // TODO modify according to requirements
     public static DecimalFormat DOCTFormat = new DecimalFormat("DOC_0000000000");
-    public static DecimalFormat PSTFormat = new DecimalFormat("PST_0000000000");
-    public static DecimalFormat EMLFormat = new DecimalFormat("EML_0000000000");
-    public static DecimalFormat ZIPFolderFormat = new DecimalFormat("ZFO_0000000000");
-    public static DecimalFormat ZIPFileFormat = new DecimalFormat("ZFI_0000000000");
     public static final String FROM_BLOCK = "from";
     public static final String TO_BLOCK = "to";
 

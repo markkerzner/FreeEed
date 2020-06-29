@@ -26,41 +26,12 @@ import java.util.concurrent.atomic.AtomicLong;
  * Current implementation is a singleton going from 1 to N.
  */
 public enum UniqueIdGenerator {
-
     INSTANCE;
-
     private AtomicLong uniqueDocumentId = new AtomicLong();
-    private AtomicLong uniquePSTId = new AtomicLong();
-    private AtomicLong uniqueEMLId = new AtomicLong();
-    private AtomicLong uniqueZIPFolderId = new AtomicLong();
-    private AtomicLong uniqueZIPFileId = new AtomicLong();
-
     public String getNextDocumentId() {
         uniqueDocumentId.incrementAndGet();
         return ParameterProcessing.DOCTFormat.format(uniqueDocumentId);
     }
-
-    public String getNextPSTId() {
-        uniquePSTId.incrementAndGet();
-        return ParameterProcessing.PSTFormat.format(uniquePSTId);
-    }
-
-    public String getNextEMLId() {
-        uniqueEMLId.incrementAndGet();
-        return ParameterProcessing.EMLFormat.format(uniqueEMLId);
-    }
-
-    public String getNextZIPFolderId() {
-        uniqueZIPFolderId.incrementAndGet();
-        return ParameterProcessing.ZIPFolderFormat.format(uniqueZIPFolderId);
-    }
-
-    public String getNextZIPFileId() {
-        uniqueZIPFileId.incrementAndGet();
-        return ParameterProcessing.ZIPFileFormat.format(uniqueZIPFileId);
-    }
-
-
     public void reset() {
         uniqueDocumentId.set(0);
     }
