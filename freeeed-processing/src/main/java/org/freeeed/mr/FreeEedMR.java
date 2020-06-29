@@ -25,6 +25,7 @@ import org.freeeed.Processor.CacheWriter;
 import org.freeeed.Processor.EmlFileProcessor;
 import org.freeeed.Processor.FileProcessor;
 import org.freeeed.Processor.SystemFileProcessor;
+import org.freeeed.ServiceDao.MetadataService;
 import org.freeeed.ServiceDao.ProjectFileService;
 import org.freeeed.extractor.PstExtractor;
 import org.freeeed.extractor.ZipFileExtractor;
@@ -47,6 +48,7 @@ public class FreeEedMR {
     public static volatile boolean isProcessing = false;
 
     private FreeEedMR() {
+        MetadataService.getInstance();
     }
 
     public static FreeEedMR getInstance() {

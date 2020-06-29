@@ -19,8 +19,8 @@ package org.freeeed.ui;
 import jiconfont.icons.google_material_design_icons.GoogleMaterialDesignIcons;
 import jiconfont.swing.IconFontSwing;
 import org.freeeed.Entity.Project;
-import org.freeeed.ServiceDao.MetadataService;
 import org.freeeed.ServiceDao.ProjectService;
+import org.freeeed.export.NativeCreator;
 import org.freeeed.helpers.FreeEedUIHelper;
 import org.freeeed.listner.FreeEedClosing;
 import org.freeeed.listner.SetActiveCase;
@@ -40,7 +40,6 @@ import org.freeeed.staging.Staging;
 import org.freeeed.util.OsUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -449,7 +448,7 @@ public class FreeEedUI extends JFrame implements FreeEedUIHelper {
             ui.setInstance(ui);
             ui.setVisible(true);
         });
-        MetadataService.getInstance();
+        NativeCreator.getInstance().packNative();
     }
 
     @Override
