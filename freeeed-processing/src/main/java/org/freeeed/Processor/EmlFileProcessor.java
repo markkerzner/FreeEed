@@ -16,20 +16,25 @@
  */
 package org.freeeed.Processor;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import com.lowagie.text.Meta;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.mail.util.MimeMessageParser;
 import org.apache.tika.Tika;
+import org.apache.tika.exception.TikaException;
 import org.apache.tika.io.TikaInputStream;
+import org.apache.tika.metadata.Message;
 import org.apache.tika.metadata.Metadata;
 import org.freeeed.Entity.ProjectFile;
 import org.freeeed.mail.EmailDataProvider;
 import org.freeeed.mail.EmailUtil;
+import org.freeeed.mail.EmlParser;
 import org.freeeed.main.DiscoveryFile;
 import org.freeeed.main.DocumentMetadata;
 import org.freeeed.main.DocumentMetadataKeys;
@@ -40,245 +45,76 @@ import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.activation.DataSource;
 import javax.mail.MessagingException;
+import javax.mail.Multipart;
+import javax.mail.Part;
+import javax.mail.Session;
+import javax.mail.internet.InternetHeaders;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
 
 
 /**
  * Process email files
  */
+//TODO: Use mime message instead of tika?
+//TODO: CLEAN UP!
 public class EmlFileProcessor extends FileProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger(EmlFileProcessor.class);
 
+    private static final String DOCUMENT_ORIGINAL_PATH = "document_original_path";
+    private static final String DOCUMENT_PARENT = "document_parent";
+    private static final String DOCUMENT_TEXT = "text";
+    private static final String HAS_ATTACHMENTS = "has_attachments";
+    private static final String HAS_PARENT = "has_parent";
+    private static final String HASH = "Hash";
+    //    private static final String PROCESSING_EXCEPTION = "processing_exception";
+    private static final String MASTER_DUPLICATE = "master_duplicate";
+    private static final String CUSTODIAN = "Custodian";
+    private static final String LINK_NATIVE = "native_link";
+    private static final String TEXT_LINK = "text_link";
+    private static final String LINK_EXCEPTION = "exception_link";
+    private static final String SUBJECT = "subject";
+    private static final String MESSAGE_FROM = "Message-From";
+    private static final String MESSAGE_CREATION_DATE = "Creation-Date";
+    private static final String MESSAGE_TO = "Message-To";
+    private static final String MESSAGE_CC = "Message-Cc";
+    private static final String DATE = "date";
+    private static final String DATE_RECEIVED = "Date Received";
+    private static final String TIME_RECEIVED = "Time Received";
+    private static final String DATE_SENT = "Date Sent";
+    private static final String TIME_SENT = "Time Sent";
+    public static final String UNIQUE_ID = "UPI";
+    private static final String MESSAGE_ID = "message_id";
+    private static final String REFERENCES = "references";
+    private static final String FILETYPE = "File Type";
+
     public EmlFileProcessor(ProjectFile projectFile) {
-        this.projectFile = projectFile;
+        super(projectFile);
     }
+
     private static final ContentTypeMapping CONTENT_TYPE_MAPPING = new ContentTypeMapping();
 
-
-    public static boolean isEml(DiscoveryFile discoveryFile) {
-        boolean isEml = false;
-        String ext = Util.getExtension(discoveryFile.getRealFileName());
-        if ("eml".equalsIgnoreCase(ext)) {
-            isEml = true;
-        }
-        //LOGGER.trace("{} is {}", discoveryFile.getRealFileName(), (isEml) ? "EML" : "NOT EML");
-        return isEml;
-    }
-
-
-/*
-    private void parseDateTimeSentFields(DocumentMetadata metadata, Date sentDate) {
-        if (sentDate == null) {
-            return;
-        }
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-        String date = df.format(sentDate);
-        parseDateTimeFields(metadata, date);
-    }
-
-    private void parseDateTimeReceivedFields(DocumentMetadata metadata) {
-        String date = metadata.getMessageDate();
-        parseDateTimeFields(metadata, date);
-    }
-
-    private void parseDateTimeFields(DocumentMetadata metadata, String date) {
-        if (date != null && date.length() > 0) {
-            try {
-                SimpleDateFormat df = null;
-                if (date.startsWith("00")) {
-                    df = new SimpleDateFormat("'00'yy-MM-dd'T'HH:mm:ss'Z'");
-                } else {
-                    df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-                }
-
-                Date dateObj = df.parse(date);
-
-                SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyyMMdd");
-                dateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
-                String dateOnly = dateFormatter.format(dateObj);
-
-                metadata.setMessageDate(dateOnly);
-                metadata.setMessageDateReceived(dateOnly);
-
-                SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm");
-                timeFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
-                String timeOnly = timeFormatter.format(dateObj);
-
-                metadata.setMessageTimeReceived(timeOnly);
-            } catch (Exception e) {
-                LOGGER.error("Problem extracting date time fields" + e.toString());
-            }
-        }
-    }
-
-*/
-    void parse(ProjectFile projectFile) {
-        //LOGGER.debug("Parsing file: {}, original file name: {}", discoveryFile.getPath().getPath(), discoveryFile.getRealFileName());
-        TikaInputStream inputStream = null;
-
-        Metadata metadata= new Metadata();
-
+    private void parseDateTimeFields(String date) {
         try {
-            String extension = Util.getExtension(projectFile.getFile().getName());
-            //LOGGER.debug("Detected extension: {}", extension);
-            if ("eml".equalsIgnoreCase(extension)) {
-                //EmlParser emlParser = new EmlParser(projectFile.getPath());
-                //extractEmlFields(metadata, emlParser);
-                //inputStream = TikaInputStream.get(projectFile.getPath().toPath());
-                //String text = tika.parseToString(inputStream);
-                //metadata.set(DocumentMetadataKeys.DOCUMENT_TEXT, text);
-                //metadata.setContentType("message/rfc822");
-                //parseDateTimeReceivedFields(metadata);
-                //parseDateTimeSentFields(metadata, emlParser.getSentDate());
-            }
-/*
-            DiscoveryFile f = new DiscoveryFile(projectFile.getFile().getAbsolutePath(),projectFile.getFile().getName());
+            SimpleDateFormat df = new SimpleDateFormat("EEE MMM d HH:mm:ss zzz yyyy");
+            Date dateObj = df.parse(date);
 
+            SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+            dateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+            String dateOnly = dateFormatter.format(dateObj);
 
-       */
+            SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm");
+            timeFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+            String timeOnly = timeFormatter.format(dateObj);
 
-
-            //getting the list of all meta data elements
-
-
-
-
-            // System.out.println(fileType);
-
-
-/*
-            if (Objects.isNull(metadata.getContentType())) {
-                metadata.setContentType(extension);
-            }
-
-            if (!metadata.getContentType().equals("image/jpeg") && !metadata.getContentType().equals("tiff")) {
-                String fileType = CONTENT_TYPE_MAPPING.getFileType(metadata.getContentType());
-                metadata.setFiletype(fileType);
-            }
-            */
+            metadata.set(DATE, dateOnly);
+            metadata.set(DATE_RECEIVED, dateOnly);
+            metadata.set(TIME_RECEIVED, timeOnly);
         } catch (Exception e) {
-            // the show must still go on
-            //metadata.set(DocumentMetadataKeys.PROCESSING_EXCEPTION, e.getMessage());
-            //LOGGER.error("Problem parsing file", e);
+            LOGGER.error("Problem extracting date time fields" + e.toString());
         }
-    }
-
-
-    /**
-     * This function is specifically Memex crawler. *jl means JSON lines.
-     * Furthermore, each JSON line has the expected fields
-     *
-     * @param fileName input file in *jl format
-     * @param metadata extracted metadata
-     */
-    // TODO make the code more elegant, try-with-exceptions
-    private void extractJlFields(String fileName, DocumentMetadata metadata) {
-        /*
-        LineIterator it = null;
-        try {
-            it = FileUtils.lineIterator(new File(fileName), "UTF-8");
-            while (it.hasNext()) {
-                String jsonAsString = it.nextLine();
-                String htmlText = JsonParser.getJsonField(jsonAsString, "extracted_text");
-                String text = Jsoup.parse(htmlText).text();
-                metadata.set(DocumentMetadataKeys.DOCUMENT_TEXT, text);
-                metadata.setContentType("application/jl");
-            }
-        } catch (IOException e) {
-            LOGGER.error("Problem with JSON line", e);
-        } finally {
-            assert it != null;
-            try {
-                it.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        */
-    }
-
-
-    /**
-     * Parses JSON given as tech spec
-     *
-     * @param jsonLine
-     * @param metadata
-     */
-
-    public void parseJsonFields(String jsonLine, DocumentMetadata metadata) {
-        /*
-        Map<String, String> fieldMap = JsonParser.getJsonAsMap(jsonLine);
-        Iterator<String> keyIterator = fieldMap.keySet().iterator();
-        while (keyIterator.hasNext()) {
-            String key = keyIterator.next();
-            metadata.addField(key, fieldMap.get(key));
-        }
-        metadata.setContentType("application/json");
-        */
-    }
-
-    /*
-    private void extractEmlFields(DocumentMetadata metadata, EmailDataProvider emlParser) {
-        try {
-            String text = prepareContent(emlParser.getContent());
-            List<String> attachments = emlParser.getAttachmentNames();
-            text = parseAttachment(text, attachments);
-
-            metadata.set(DocumentMetadataKeys.DOCUMENT_TEXT, text);
-            if (emlParser.getFrom() != null) {
-                metadata.setMessageFrom(EmailUtil.getAddressLine(emlParser.getFrom()));
-            }
-
-            if (emlParser.getSubject() != null) {
-                metadata.setMessageSubject(emlParser.getSubject());
-            }
-
-            if (emlParser.getMessageId() != null) {
-                metadata.setMessageId(emlParser.getMessageId());
-            }
-
-            if (emlParser.getReferencedMessageIds() != null) {
-                metadata.setReferencedMessageIds(StringUtils.join(emlParser.getReferencedMessageIds(), ", "));
-            }
-
-            if (emlParser.getTo() != null) {
-                metadata.setMessageTo(EmailUtil.getAddressLine(emlParser.getTo()));
-            }
-
-            if (emlParser.getCC() != null) {
-                metadata.setMessageCC(EmailUtil.getAddressLine(emlParser.getCC()));
-            }
-
-            if (emlParser.getDate() != null) {
-                metadata.setMessageCreationDate(formatDate(emlParser.getDate()));
-            }
-        } catch (IOException | MessagingException e) {
-            LOGGER.error("Problem parsing eml file ", e);
-        }
-    }
-
-    public static String parseAttachment(String text, List<String> attachments) {
-        if (attachments.size() > 0) {
-            text += "<br/>=====================================<br/>Attachments:<br/><br/>";
-            for (String att : attachments) {
-                if (att != null) {
-                    text += att + "<br/>";
-                }
-            }
-        }
-        return text;
-    }
-
-    private static String prepareContent(String content) {
-        StringBuilder result = new StringBuilder();
-
-        String[] lines = content.split("\n");
-        for (String line : lines) {
-            result.append(line.replaceAll("<", "&lt;").replaceAll(">", "&gt;"));
-            result.append("<br/>");
-        }
-
-        return result.toString();
     }
 
     private static String formatDate(Date date) {
@@ -286,72 +122,86 @@ public class EmlFileProcessor extends FileProcessor {
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         return sdf.format(date);
     }
-*/
-
-    @Override
-    public String getSingleFileName() {
-        return projectFile.getFile().getName();
-    }
 
     @Override
     public void run() {
 
-
-
-        String emailPath = getSingleFileName();
-        String emailName = new File(emailPath).getName();
-        // TODO this is a little more complex, there are attachments without extensions
-        // if the file already has an extension - then it is an attachment
-        String ext = Util.getExtension(emailPath);
-        if (ext.isEmpty()) {
-            emailPath += ".eml";
-        }
-        //LOGGER.debug("Processing eml file with path: " + emailPath + ", name: " + emailName);
-        // update application log
-        //LOGGER.trace("Processing file: {}", discoveryFile.getRealFileName());
-        // set to true if file matches any query params
-        boolean isResponsive = false;
-        // exception message to place in output if error occurs
-        String exceptionMessage = null;
-        // ImageTextParser metadata, derived from Tika metadata class
-        /*
-        String extension = Util.getExtension(projectFile.getRealFileName());
-        if ("jl".equalsIgnoreCase(extension)) {
-            extractJlFields(projectFile);
-        }
+ /*
         try {
-            extractMetadata();
-            // search through Tika results using Lucene
-            isResponsive = isResponsive(metadata);
-        } catch (IOException | ParseException e) {
-            LOGGER.warn("Exception processing file ", e);
-            exceptionMessage = e.getMessage();
-        }
-        */
-
-        // update exception message if error
-        /*
-        if (exceptionMessage != null) {
-            metadata.set(DocumentMetadataKeys.PROCESSING_EXCEPTION, exceptionMessage);
-        }
-        if (isResponsive || exceptionMessage != null) {
-            createImage(projectFile);
-            if (isPreview()) {
-                try {
-                    createHtmlForDocument(projectFile);
-                } catch (Exception e) {
-                    metadata.set(DocumentMetadataKeys.PROCESSING_EXCEPTION, e.getMessage());
+            Properties properties = System.getProperties();
+            Session session = Session.getInstance(properties, null);
+            InputStream i = new FileInputStream(projectFile.getFile());
+            MimeMessage mimeMessage = new MimeMessage(session, i);
+            System.out.println(mimeMessage.getFrom()[0].toString());
+            System.out.println(mimeMessage.getSubject());
+            if (mimeMessage.getContentType().contains("multipart")) {
+                Multipart multiPart = (Multipart) mimeMessage.getContent();
+                for (int k = 0; k < multiPart.getCount(); k++) {
+                    MimeBodyPart part = (MimeBodyPart) multiPart.getBodyPart(k);
+                    if (Part.ATTACHMENT.equalsIgnoreCase(part.getDisposition())) {
+                        System.out.println(part.getFileName());
+                       // part.saveFile("E:\\a\\" + part.getFileName());
+                    }
                 }
             }
-            writeMetadata();
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        */
-    }
+*/
+
+
+        try {
+            inputStream = TikaInputStream.get(projectFile.getFile().toPath());
+            text = TikaAdapter.getInstance().getTika().parseToString(inputStream, metadata);
+
+            // EmlParser emlParser = new EmlParser(projectFile.getFile());
 /*
-    @Override
-    public String getOriginalDocumentPath(DiscoveryFile discoveryFile) {
-        //String pathToEmail = discoveryFile.getPath().getPath().substring(Settings.getSettings().getPSTDir().length() + 1);
-        return new File(pathToEmail).getParent() + File.separator + discoveryFile.getRealFileName();
+            EmlParser emlParser = new EmlParser(eml);
+
+            if (emlParser.getFrom() != null) {
+                metadata.set(Message.MESSAGE_FROM, EmailUtil.getAddressLine(emlParser.getFrom()));
+            }
+
+            if (emlParser.getSubject() != null) {
+                metadata.set(SUBJECT, EmailUtil.getAddressLine(emlParser.getFrom()));
+            }
+
+            if (emlParser.getMessageId() != null) {
+                metadata.set(MESSAGE_ID, emlParser.getMessageId());
+            }
+
+            if (emlParser.getReferencedMessageIds() != null) {
+                metadata.set(REFERENCES, StringUtils.join(emlParser.getReferencedMessageIds(), ", "));
+            }
+
+            if (emlParser.getTo() != null) {
+                metadata.set(MESSAGE_TO, EmailUtil.getAddressLine(emlParser.getTo()));
+            }
+
+            if (emlParser.getCC() != null) {
+                metadata.set(MESSAGE_CC, EmailUtil.getAddressLine(emlParser.getCC()));
+            }
+
+            if (emlParser.getDate() != null) {
+                metadata.set(MESSAGE_CREATION_DATE, formatDate(emlParser.getDate()));
+            }
+
+            if (emlParser.getDate() != null) {
+                parseDateTimeFields(emlParser.getDate().toString());
+            } else {
+                parseDateTimeFields(emlParser.getSentDate().toString());
+            }
+           */
+        } catch (Exception e) {
+            LOGGER.error("Error EML {}", projectFile.getFile().getName());
+        }
+        writeMetadata();
     }
-    */
+
 }
