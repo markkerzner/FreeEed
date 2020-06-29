@@ -19,16 +19,18 @@ package org.freeeed.Processor;
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
-import org.apache.tika.Tika;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.Metadata;
 import org.freeeed.Entity.Project;
 import org.freeeed.Entity.ProjectFile;
+import org.freeeed.main.ParameterProcessing;
 import org.freeeed.mr.MetadataWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -43,11 +45,8 @@ public class FileProcessor implements Runnable {
     protected Metadata metadata = new Metadata();
     private final String[] imageExt = new String[]{"jpg", "jpeg", "png", "bmp", "tiff"};
     List<String> imageExtList = Arrays.asList(imageExt);
-
     String exceptionMessage = null;
     protected String text = null;
-    private static final String EMPTY = "";
-    private static final Tika TIKA = new Tika();
     TikaInputStream inputStream;
 
     FileProcessor() {
@@ -58,19 +57,36 @@ public class FileProcessor implements Runnable {
     }
 
     void writeMetadata() {
-        MetadataWriter.getInstance().processMap(projectFile, metadata, text);
+        if (text != null && text.length() > 0) {
+            String tepmFolder = project.getResultsDir() +
+                    System.getProperty("file.separator") +
+                    "tmp" +
+                    System.getProperty("file.separator") +
+                    ParameterProcessing.TEXT +
+                    System.getProperty("file.separator") +
+                    projectFile.getFileId() + "_" + projectFile.getFile().getName() + ".txt";
+            File f = new File(tepmFolder);
+            f.getParentFile().mkdirs();
+            BufferedWriter writer = null;
+            try {
+                writer = new BufferedWriter(new FileWriter(tepmFolder));
+                writer.write(text);
+                writer.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        MetadataWriter.getInstance().processMap(projectFile, metadata);
     }
 
     private String ocrFile(String file) {
         String simpleParse = null;
         if (project.isDoOcr()) {
-
             try {
                 simpleParse = TikaAdapter.getInstance().getTika().parseToString(new File(file));
             } catch (IOException | TikaException e) {
                 LOGGER.error("Error during Tika ORC {}", e.getMessage());
             }
-
             if (simpleParse != null && simpleParse.length() == 0) {
                 LOGGER.info("processing with tesseract {}", file);
                 ITesseract instance = new Tesseract();
@@ -85,7 +101,6 @@ public class FileProcessor implements Runnable {
         }
         return simpleParse;
     }
-
 
     @Override
     public void run() {
