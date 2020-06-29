@@ -18,12 +18,15 @@ package org.freeeed.mr;
 
 import org.apache.tika.metadata.Metadata;
 import org.freeeed.Entity.ProjectFile;
+import org.freeeed.Entity.ProjectMetadata;
+import org.freeeed.Processor.CacheWriter;
 import org.freeeed.ServiceDao.MetadataService;
 import org.freeeed.services.ProcessingStats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.*;
-//TODO: In memory cache please.
+
+
 public class MetadataWriter {
     private static final Logger LOGGER = LoggerFactory.getLogger(MetadataWriter.class);
     private static volatile MetadataWriter mInstance;
@@ -55,9 +58,12 @@ public class MetadataWriter {
                 } catch (Exception ignored) {
                 }
             }
-            MetadataService.getInstance().newMetaData(name, metadata.get(name), projectFile);
+            CacheWriter.addedMeta++;
+            CacheWriter.projectMetadataList.add( new ProjectMetadata(metadata.get(name), MetadataService.headerHashMap.get(name), projectFile) );
             ProcessingStats.getInstance().taskIsTika(projectFile.getFile().getName(), name);
+            ProcessingStats.getInstance().setSecondBarMax(CacheWriter.addedMeta);
         }
+
         //TODO: Write text to file immediately
         LOGGER.info(projectFile.getFile() + " Done");
         ProcessingStats.getInstance().increaseItemCount(projectFile.getFile().length());
