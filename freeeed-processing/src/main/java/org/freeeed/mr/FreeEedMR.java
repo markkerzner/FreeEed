@@ -32,6 +32,7 @@ import org.freeeed.services.ProcessingStats;
 import org.freeeed.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.util.List;
 
@@ -97,7 +98,7 @@ public class FreeEedMR {
     }
 
     private void processStagePSTFile(List<ProjectFile> filesPst) {
-        ProcessingStats.getInstance().taskIsTika();
+        ProcessingStats.getInstance().taskIsPST();
         pstFileToExtract = filesPst.size();
         filesPst.forEach(temp -> ExecutorPool.getInstance().getExecutorService().execute(new PstExtractor(temp)));
     }
@@ -118,7 +119,7 @@ public class FreeEedMR {
     }
 
     private void mainProcess() {
-        ProcessingStats.getInstance().taskIsPST();
+        ProcessingStats.getInstance().taskIsTika();
 
         ProcessingStats.getInstance().setTotalItem(ProjectFileService.getInstance().getProjectFileCount(project));
         ProcessingStats.getInstance().setTotalSize(ProjectFileService.getInstance().getProjectSize(project));
