@@ -21,6 +21,7 @@ import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.freeeed.Entity.Project;
 import org.freeeed.Entity.ProjectFile;
+import org.freeeed.Processor.CacheWriter;
 import org.freeeed.Processor.EmlFileProcessor;
 import org.freeeed.Processor.FileProcessor;
 import org.freeeed.Processor.SystemFileProcessor;
@@ -43,6 +44,7 @@ public class FreeEedMR {
     private static File stagingFolder;
     private static volatile FreeEedMR mInstance;
     private int zipFileToExtract = 0, pstFileToExtract = 0;
+    public static volatile boolean isProcessing = false;
 
     private FreeEedMR() {
     }
@@ -120,10 +122,12 @@ public class FreeEedMR {
 
     private void mainProcess() {
         ProcessingStats.getInstance().taskIsTika();
-
+        isProcessing = true;
         ProcessingStats.getInstance().setTotalItem(ProjectFileService.getInstance().getProjectFileCount(project));
         ProcessingStats.getInstance().setTotalSize(ProjectFileService.getInstance().getProjectSize(project));
 
+        CacheWriter writer = new CacheWriter();
+        writer.start();
         List<ProjectFile> projectFiles = ProjectFileService.getInstance().getProjectFilesByProject(project);
         projectFiles.forEach(temp -> {
             Runnable fileProcessor = null;
