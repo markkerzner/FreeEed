@@ -178,5 +178,10 @@
             <artifactId>hibernate-core</artifactId>
             <version>5.4.13.Final</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-email</artifactId>
+            <version>1.5</version>
+        </dependency>
     </dependencies>
 </project>
