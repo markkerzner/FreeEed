@@ -21,6 +21,7 @@ import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.freeeed.Entity.Project;
 import org.freeeed.Entity.ProjectFile;
+import org.freeeed.Processor.EmlFileProcessor;
 import org.freeeed.Processor.FileProcessor;
 import org.freeeed.Processor.SystemFileProcessor;
 import org.freeeed.ServiceDao.ProjectFileService;
@@ -28,11 +29,9 @@ import org.freeeed.extractor.PstExtractor;
 import org.freeeed.extractor.ZipFileExtractor;
 import org.freeeed.main.*;
 import org.freeeed.services.ProcessingStats;
-
 import org.freeeed.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.util.List;
 
@@ -42,7 +41,6 @@ public class FreeEedMR {
     private static Project project;
     private static File stagingFolder;
     private static volatile FreeEedMR mInstance;
-    private long totalSize = 0;
     private int zipFileToExtract = 0, pstFileToExtract = 0;
 
     private FreeEedMR() {
@@ -84,10 +82,10 @@ public class FreeEedMR {
         }
     }
 
-    private void processStageZipFiles() {
-        List<File> files = (List<File>) FileUtils.listFiles(stagingFolder, new RegexFileFilter("^(.*zip)"), DirectoryFileFilter.DIRECTORY);
-        zipFileToExtract = files.size();
-        files.forEach(temp -> ExecutorPool.getInstance().getExecutorService().execute(new ZipFileExtractor(project, temp)));
+    private void processStageZipFiles(List<ProjectFile> fileZip) {
+        zipFileToExtract = fileZip.size();
+        ProcessingStats.getInstance().taskIsZip();
+        fileZip.forEach(temp -> ExecutorPool.getInstance().getExecutorService().execute(new ZipFileExtractor(temp)));
     }
 
     public void reducePSTFile() {
@@ -98,59 +96,46 @@ public class FreeEedMR {
         }
     }
 
-    private void processStagePSTFile() {
-        List<File> files = (List<File>) FileUtils.listFiles(stagingFolder, new RegexFileFilter("^(.*pst)"), DirectoryFileFilter.DIRECTORY);
-        pstFileToExtract = files.size();
-        files.forEach(temp -> ExecutorPool.getInstance().getExecutorService().execute(new PstExtractor(project, temp)));
+    private void processStagePSTFile(List<ProjectFile> filesPst) {
+        ProcessingStats.getInstance().taskIsTika();
+        pstFileToExtract = filesPst.size();
+        filesPst.forEach(temp -> ExecutorPool.getInstance().getExecutorService().execute(new PstExtractor(temp)));
     }
 
     /**
      * Decide what to do first
      */
     private void decideNextJob() {
-        int filesZip = FileUtils.listFiles(stagingFolder, new RegexFileFilter("^(.*zip)"), DirectoryFileFilter.DIRECTORY).size();
-        int filesPst = FileUtils.listFiles(stagingFolder, new RegexFileFilter("^(.*pst)"), DirectoryFileFilter.DIRECTORY).size();
-        if (filesZip > 0) {
-            ProcessingStats.getInstance().taskIsZip();
-            processStageZipFiles();
-        } else if (filesPst > 0) {
-            ProcessingStats.getInstance().taskIsPST();
-            processStagePSTFile();
+        List<ProjectFile> filesPst = ProjectFileService.getInstance().getProjectFilesByProject(project, "pst");
+        List<ProjectFile> filesZip = ProjectFileService.getInstance().getProjectFilesByProject(project, "zip");
+        if (filesZip.size() > 0) {
+            processStageZipFiles(filesZip);
+        } else if (filesPst.size() > 0) {
+            processStagePSTFile(filesPst);
         } else {
-            ProcessingStats.getInstance().taskIsTika();
             mainProcess();
         }
     }
 
     private void mainProcess() {
-        LOGGER.info("Starting Main Process");
-        List<File> files = (List<File>) FileUtils.listFiles(stagingFolder, new RegexFileFilter("^(.*?)"), DirectoryFileFilter.DIRECTORY);
-
-        files.forEach(temp -> {
-            ProjectFile file = new ProjectFile(temp.getAbsolutePath(), project);
-            ProjectFileService.getInstance().createProjectFile(file);
-        });
+        ProcessingStats.getInstance().taskIsPST();
 
         ProcessingStats.getInstance().setTotalItem(ProjectFileService.getInstance().getProjectFileCount(project));
         ProcessingStats.getInstance().setTotalSize(ProjectFileService.getInstance().getProjectSize(project));
 
-
         List<ProjectFile> projectFiles = ProjectFileService.getInstance().getProjectFilesByProject(project);
         projectFiles.forEach(temp -> {
             Runnable fileProcessor = null;
-/*
-            if (EmlFileProcessor.isEml(discoveryFile)) {
-              //  fileProcessor = new EmlFileProcessor(discoveryFile);
-            } else
-*/
-            if (Util.isSystemFile(temp.getFile())) {
+
+            if ("eml".equalsIgnoreCase(temp.getExtension())) {
+                fileProcessor = new EmlFileProcessor(temp);
+            } else if (Util.isSystemFile(temp.getFile())) {
                 fileProcessor = new SystemFileProcessor(temp);
             } else {
                 fileProcessor = new FileProcessor(temp);
             }
             ExecutorPool.getInstance().getExecutorService().execute(fileProcessor);
         });
-
     }
 
 }
