@@ -19,9 +19,9 @@ package org.freeeed.export;
 import org.apache.commons.io.FileUtils;
 import org.freeeed.Entity.MetadataHeader;
 import org.freeeed.Entity.Project;
+import org.freeeed.Entity.ProjectFile;
 import org.freeeed.ServiceDao.MetadataService;
 import org.freeeed.ServiceDao.ProjectFileService;
-import org.freeeed.mr.MetadataWriter;
 import org.freeeed.services.ProcessingStats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +39,7 @@ public class LoadFileWriter {
     private File metadataFile;
     private String preFix, postFix, middleFix;
     private List<MetadataHeader> metadataHeaders = MetadataService.getInstance().getAllMetadataHeader(true);
+    private int done = 0;
 
     private LoadFileWriter() {
     }
@@ -112,7 +113,9 @@ public class LoadFileWriter {
     }
 
     private void populateMetadataFile() {
-        ProjectFileService.getInstance().getProjectFilesByProject(project).forEach(projectFile -> {
+        List<ProjectFile> fileList = ProjectFileService.getInstance().getProjectFilesByProject(project);
+        ProcessingStats.getInstance().setMainBarMax(fileList.size());
+        fileList.forEach(projectFile -> {
             String lineToAdd = "";
             for (Iterator<MetadataHeader> i = metadataHeaders.iterator(); i.hasNext(); ) {
                 MetadataHeader header = i.next();
@@ -152,12 +155,12 @@ public class LoadFileWriter {
             lineToAdd += "\n";
             appendMetadata(lineToAdd);
         });
-        NativeCreator.getInstance().packNative();
     }
 
     private void appendMetadata(String string) {
         try {
             FileUtils.writeStringToFile(metadataFile, string, Charset.defaultCharset(), true);
+            ProcessingStats.getInstance().setMainBarValue(++done);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -169,5 +172,6 @@ public class LoadFileWriter {
         prepareMetadataFile();
         createMetadataFileHeader();
         populateMetadataFile();
+        NativeCreator.getInstance().packNative();
     }
 }
