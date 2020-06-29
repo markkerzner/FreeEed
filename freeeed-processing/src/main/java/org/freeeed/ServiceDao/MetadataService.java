@@ -63,6 +63,10 @@ public class MetadataService {
         MetadataDao.getInstance().createMetaData(m);
     }
 
+    public void newMetaData(ProjectMetadata m) {
+        MetadataDao.getInstance().createMetaData(m);
+    }
+
     public ProjectMetadata getMetaValueByFileAndHeader(ProjectFile file, MetadataHeader header) {
         return MetadataDao.getInstance().getMetaValueByFileAndHeader(file, header);
     }
