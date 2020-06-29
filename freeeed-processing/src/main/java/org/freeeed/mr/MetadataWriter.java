@@ -45,7 +45,7 @@ public class MetadataWriter {
         return mInstance;
     }
 
-    public synchronized void processMap(ProjectFile projectFile, Metadata metadata, String text) {
+    public synchronized void processMap(ProjectFile projectFile, Metadata metadata) {
         String[] metadataNames = metadata.names();
         for (String name : metadataNames) {
             while (MetadataService.headerHashMap.get(name) == null) {
@@ -58,13 +58,10 @@ public class MetadataWriter {
                 } catch (Exception ignored) {
                 }
             }
-            CacheWriter.addedMeta++;
             CacheWriter.projectMetadataList.add( new ProjectMetadata(metadata.get(name), MetadataService.headerHashMap.get(name), projectFile) );
             ProcessingStats.getInstance().taskIsTika(projectFile.getFile().getName(), name);
-            ProcessingStats.getInstance().setSecondBarMax(CacheWriter.addedMeta);
+            ProcessingStats.getInstance().setSecondBarMax(++CacheWriter.addedMeta);
         }
-
-        //TODO: Write text to file immediately
         LOGGER.info(projectFile.getFile() + " Done");
         ProcessingStats.getInstance().increaseItemCount(projectFile.getFile().length());
     }
