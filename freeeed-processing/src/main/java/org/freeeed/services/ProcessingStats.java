@@ -100,7 +100,7 @@ public class ProcessingStats {
     public void taskIsLoadCreator() {
         if (ui != null) {
             ui.setProgressLabel("Creating Load file...");
-            ui.setProgressIndeterminate(true);
+            ui.setProgressIndeterminate(false);
         }
     }
 
@@ -265,6 +265,18 @@ public class ProcessingStats {
             sizeType = "MB";
         }
         ui.setProgressedSize(nf.format(size) + " " + sizeType);
+    }
+
+    public void setMainBarMax(int max){
+        if (ui != null) {
+            ui.setProgressBarMaximum(max);
+        }
+    }
+
+    public void setMainBarValue(int prg){
+        if (ui != null) {
+            ui.setProgressBarValue(prg);
+        }
     }
 
     public void setSecondBarMax(int max){
