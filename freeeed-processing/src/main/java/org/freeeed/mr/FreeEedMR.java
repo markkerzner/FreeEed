@@ -63,6 +63,16 @@ public class FreeEedMR {
         project = Project.getActiveProject();
         stagingFolder = new File(project.getStagingDir());
         ProcessingStats.getInstance().setJobStarted(project.getName());
+        populateDatabase();
+    }
+
+    private void populateDatabase() {
+        LOGGER.info("Starting Main Process");
+        List<File> files = (List<File>) FileUtils.listFiles(stagingFolder, new RegexFileFilter("^(.*?)"), DirectoryFileFilter.DIRECTORY);
+        files.forEach(temp -> {
+            ProjectFile file = new ProjectFile(temp.getAbsolutePath(), project);
+            ProjectFileService.getInstance().createProjectFile(file);
+        });
         decideNextJob();
     }
 
