@@ -23,6 +23,13 @@ public class ProjectFile {
 
     @ManyToOne
     @JoinColumn(nullable = true, columnDefinition = "default null")
+    private ProjectFile sourceFile;
+
+    @OneToMany(mappedBy = "sourceFile", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<ProjectFile> sourceFileList = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(nullable = true, columnDefinition = "default null")
     private ProjectFile master;
 
     @OneToMany(mappedBy = "master", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -123,4 +130,21 @@ public class ProjectFile {
     public void setExtension(String extension) {
         this.extension = extension;
     }
+
+    public ProjectFile getSourceFile() {
+        return sourceFile;
+    }
+
+    public void setSourceFile(ProjectFile sourceFile) {
+        this.sourceFile = sourceFile;
+    }
+
+    public void setParent(ProjectFile parent) {
+        this.parent = parent;
+    }
+
+    public void setAsProcessed() {
+        isProcessed = true;
+    }
+
 }
