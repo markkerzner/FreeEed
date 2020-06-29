@@ -21,6 +21,7 @@ import org.apache.commons.io.FileUtils;
 import org.freeeed.Entity.Project;
 import org.freeeed.export.LoadFileWriter;
 import org.freeeed.helpers.FreeEedUIHelper;
+import org.freeeed.mr.FreeEedMR;
 import org.freeeed.mr.ResultCompressor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -250,7 +251,7 @@ public class ProcessingStats {
         }
         if (doneItem == totalItem) {
             LOGGER.info("Packing Files");
-            LoadFileWriter.getInstance().createLoadFile();
+            FreeEedMR.isProcessing=false;
         }
     }
 
@@ -265,4 +266,17 @@ public class ProcessingStats {
         }
         ui.setProgressedSize(nf.format(size) + " " + sizeType);
     }
+
+    public void setSecondBarMax(int max){
+        if (ui != null) {
+            ui.setSecondProgressBarMaximum(max);
+        }
+    }
+
+    public void setSecondBarValue(int prg){
+        if (ui != null) {
+            ui.setSecondProgressBarValue(prg);
+        }
+    }
+
 }
