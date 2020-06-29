@@ -65,7 +65,6 @@ public class EmlParser implements EmailDataProvider {
     }
 
 
-
     private void parseEmail() {
         java.util.Properties properties = System.getProperties();
         Session session = Session.getDefaultInstance(properties);
@@ -81,7 +80,8 @@ public class EmlParser implements EmailDataProvider {
             _subject = email.getSubject();
             try {
                 _content = email.getContent();
-            }catch (Exception ex){}
+            } catch (Exception ex) {
+            }
             _date = email.getReceivedDate();
             _sentDate = email.getSentDate();
             _messageId = email.getMessageID();
@@ -266,19 +266,6 @@ public class EmlParser implements EmailDataProvider {
             }
         }
         return buf.toString();
-    }
-
-    public static void main(String argv[]) throws Exception {
-        EmlParser instance = new EmlParser(new File("samples/13.eml"));
-        System.out.println(instance.getContent());
-        System.out.println(instance.getAttachmentNames());
-        //instance.parseEmail();
-        /*
-         * ArrayList<String> to = instance.getTo(); for (String t : to) {
-         * System.out.println(t); } instance = new EmlParser(new
-         * File("test-data/jpst/802.eml")); try { instance.saveAttachments(); }
-         * catch (Exception e) { e.printStackTrace(System.out); }
-         */
     }
 
     /**

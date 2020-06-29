@@ -1,7 +1,6 @@
 package org.freeeed.ServiceDao;
 
 import org.freeeed.Entity.Project;
-import org.freeeed.Entity.ProjectCustodian;
 import org.freeeed.Entity.ProjectFile;
 import org.freeeed.util.HibernateUtil;
 import org.hibernate.Session;
@@ -35,14 +34,27 @@ class ProjectFileDao {
         return mInstance;
     }
 
-    void createProjectFile(ProjectFile projectFile) {
+    int createProjectFile(ProjectFile projectFile) {
         Transaction transaction = currentSession.beginTransaction();
         currentSession.save(projectFile);
+        int id = projectFile.getFileId();
         transaction.commit();
+        return id;
+    }
+
+    ProjectFile getProjectFilebyId(int prjId){
+        return currentSession.load(ProjectFile.class,prjId);
     }
 
     List<ProjectFile> getProjectFilesByProject(Project project) {
         return currentSession.createQuery("from ProjectFile where custodian in (from ProjectCustodian where project=:prj)").setParameter("prj", project).list();
+    }
+
+    List<ProjectFile> getProjectFilesByProject(Project project, String extension) {
+        return currentSession.createQuery("from ProjectFile where custodian in (from ProjectCustodian where project=:prj) and extension=:ext and isProcessed=0")
+                .setParameter("prj", project)
+                .setParameter("ext", extension)
+                .list();
     }
 
     boolean isFileExists(ProjectFile projectFile) {
@@ -65,4 +77,9 @@ class ProjectFileDao {
     }
 
 
+    void updateProjectFile(ProjectFile projectFile) {
+        Transaction transaction = currentSession.beginTransaction();
+        currentSession.update(projectFile);
+        transaction.commit();
+    }
 }

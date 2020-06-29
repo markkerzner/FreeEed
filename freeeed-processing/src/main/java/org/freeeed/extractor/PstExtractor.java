@@ -3,10 +3,11 @@ package org.freeeed.extractor;
 import com.pff.*;
 import org.apache.commons.io.FileUtils;
 import org.freeeed.Entity.Project;
+import org.freeeed.Entity.ProjectFile;
+import org.freeeed.ServiceDao.ProjectFileService;
 import org.freeeed.mr.FreeEedMR;
 import org.freeeed.services.ProcessingStats;
 import org.freeeed.services.UniqueIdGenerator;
-import org.freeeed.util.Util;
 import javax.activation.DataHandler;
 import javax.mail.Header;
 import javax.mail.Message;
@@ -19,18 +20,19 @@ import java.util.*;
 
 public class PstExtractor implements Runnable {
 
-    private File file;
+    private ProjectFile projectFile;
     private String tmpFolderEML, tmpFolderAttachment;
     private List<PSTMessage> emailList = new ArrayList<>();
 
-    public PstExtractor(Project project, File file) {
-        this.file = file;
-        String pstId = UniqueIdGenerator.INSTANCE.getNextPSTId();
-        String custodianName = Util.getCustodianFromPath(file);
-        tmpFolderEML = project.getStagingDir() + System.getProperty("file.separator") + custodianName + System.getProperty("file.separator") + pstId + "_" + file.getName() + System.getProperty("file.separator")+ "eml"+System.getProperty("file.separator");
-        tmpFolderAttachment = project.getStagingDir() + System.getProperty("file.separator") + custodianName + System.getProperty("file.separator") + pstId + "_" + file.getName() + System.getProperty("file.separator") +"attachment"+System.getProperty("file.separator");
+    public PstExtractor(ProjectFile projectFile) {
+        this.projectFile = projectFile;
+        String pstId = UniqueIdGenerator.INSTANCE.getNextDocumentId();
+        tmpFolderEML = projectFile.getFile().getParent() + System.getProperty("file.separator") + pstId + "_" + projectFile.getFile().getName() + System.getProperty("file.separator") + "eml" + System.getProperty("file.separator");
         new File(tmpFolderEML).mkdirs();
+
+        tmpFolderAttachment = projectFile.getFile().getParent() + System.getProperty("file.separator") + pstId + "_" + projectFile.getFile().getName() + System.getProperty("file.separator") + "attachment" + System.getProperty("file.separator");
         new File(tmpFolderAttachment).mkdirs();
+
     }
 
     private void processFolder(final PSTFolder folder) throws PSTException, IOException {
@@ -51,20 +53,21 @@ public class PstExtractor implements Runnable {
         }
     }
 
-    private void extractAttachment(PSTMessage email, String emlId) throws PSTException, IOException {
-
+    private void extractAttachment(PSTMessage email, String emlId, ProjectFile emlProjectFile) throws PSTException, IOException {
         for (int attachIndex = 0; attachIndex < email.getNumberOfAttachments(); attachIndex++) {
             PSTAttachment pstAttachment = email.getAttachment(attachIndex);
             InputStream inputStream = pstAttachment.getFileInputStream();
             File f = new File(tmpFolderAttachment + emlId + "_" + pstAttachment.getFilename().trim());
             f.createNewFile();
             FileUtils.copyInputStreamToFile(inputStream, f);
+            ProjectFile file = new ProjectFile(f.getPath(), Project.getActiveProject());
+            file.setSourceFile(projectFile);
+            file.setParent(emlProjectFile);
+            ProjectFileService.getInstance().createProjectFile(file);
         }
-
-
     }
 
-    private void saveToEML(PSTMessage message, String emlId) throws MessagingException, IOException, PSTException {
+    private ProjectFile saveToEML(PSTMessage message, String emlId) throws MessagingException, IOException, PSTException {
         Properties properties = System.getProperties();
         Session session = Session.getInstance(properties);
         MimeMessage mimeMessage = new MimeMessage(session);
@@ -131,20 +134,22 @@ public class PstExtractor implements Runnable {
         File emlFile = new File(tmpFolderEML + emlId + ".eml");
         emlFile.createNewFile();
         mimeMessage.writeTo(new FileOutputStream(emlFile));
+        ProjectFile file = new ProjectFile(emlFile.getPath(), Project.getActiveProject());
+        file.setSourceFile(projectFile);
+        return ProjectFileService.getInstance().createProjectFile(file);
     }
 
     private void processEmailList() {
         emailList.forEach(email -> {
-            String emlId = UniqueIdGenerator.INSTANCE.getNextEMLId();
-            if (email.hasAttachments()) {
-                try {
-                    extractAttachment(email, emlId);
-                } catch (PSTException | IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            String emlId = UniqueIdGenerator.INSTANCE.getNextDocumentId();
+            ProjectFile emlProjectFile = null;
             try {
-                saveToEML(email, emlId);
+                emlProjectFile = saveToEML(email, emlId);
+
+                if (email.hasAttachments()) {
+                    extractAttachment(email, emlId, emlProjectFile);
+                }
+
             } catch (MessagingException | IOException | PSTException e) {
                 e.printStackTrace();
             }
@@ -155,11 +160,12 @@ public class PstExtractor implements Runnable {
     @Override
     public void run() {
         try {
-            PSTFile pstFile = new PSTFile(file);
+            PSTFile pstFile = new PSTFile(projectFile.getFile());
             processFolder(pstFile.getRootFolder());
             processEmailList();
             pstFile.close();
-            file.delete();
+            projectFile.setAsProcessed();
+            ProjectFileService.getInstance().updateProjectFile(projectFile);
             FreeEedMR.getInstance().reducePSTFile();
         } catch (PSTException | IOException e) {
             e.printStackTrace();

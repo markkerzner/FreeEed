@@ -19,9 +19,8 @@ package org.freeeed.ui;
 import jiconfont.icons.google_material_design_icons.GoogleMaterialDesignIcons;
 import jiconfont.swing.IconFontSwing;
 import org.freeeed.Entity.Project;
-import org.freeeed.ServiceDao.MetadataService;
 import org.freeeed.ServiceDao.ProjectService;
-import org.freeeed.export.LoadFileWriter;
+import org.freeeed.export.NativeCreator;
 import org.freeeed.helpers.FreeEedUIHelper;
 import org.freeeed.listner.FreeEedClosing;
 import org.freeeed.listner.SetActiveCase;
@@ -58,7 +57,7 @@ public class FreeEedUI extends JFrame implements FreeEedUIHelper {
     private JLabel projectName;
     private final JTable caseTable;
     private JButton deleteButton, editButton, stageButton, processButton;
-    private JProgressBar progressBar;
+    private JProgressBar progressBar, secondProgressBar;
     private JLabel progressLabel, progressSizeLabel;
     NumberFormat nf = NumberFormat.getInstance();
     private final JScrollPane caseScrollPane = new JScrollPane();
@@ -107,22 +106,27 @@ public class FreeEedUI extends JFrame implements FreeEedUIHelper {
     private void initProgressBar() {
 
         progressBar = new JProgressBar();
-        progressBar.setBounds(10, 385, 800, 30);
+        progressBar.setBounds(10, 365, 800, 20);
         progressBar.setStringPainted(true);
 
+        secondProgressBar = new JProgressBar();
+        secondProgressBar.setBounds(10, 395, 800, 20);
+        secondProgressBar.setStringPainted(true);
+
         getContentPane().add(progressBar);
+        getContentPane().add(secondProgressBar);
     }
 
     private void initProgressLabel() {
         progressLabel = new JLabel();
-        progressLabel.setBounds(10, 360, 800, 30);
+        progressLabel.setBounds(10, 340, 800, 30);
         getContentPane().add(progressLabel);
     }
 
     private void initProgressSizeLabel() {
         progressSizeLabel = new JLabel();
         progressSizeLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-        progressSizeLabel.setBounds(509, 360, 300, 30);
+        progressSizeLabel.setBounds(509, 340, 300, 30);
         getContentPane().add(progressSizeLabel);
     }
 
@@ -134,6 +138,16 @@ public class FreeEedUI extends JFrame implements FreeEedUIHelper {
     public void setProgressIndeterminate(boolean status) {
         progressBar.setIndeterminate(status);
         progressBar.setStringPainted(!status);
+    }
+
+    @Override
+    public void setSecondProgressBarMaximum(int max) {
+        secondProgressBar.setMaximum(max);
+    }
+
+    @Override
+    public void setSecondProgressBarValue(int prg) {
+        secondProgressBar.setValue(prg);
     }
 
     public void setProgressLabel(String label) {
@@ -434,7 +448,7 @@ public class FreeEedUI extends JFrame implements FreeEedUIHelper {
             ui.setInstance(ui);
             ui.setVisible(true);
         });
-        MetadataService.getInstance();
+        NativeCreator.getInstance().packNative();
     }
 
     @Override
@@ -462,7 +476,7 @@ public class FreeEedUI extends JFrame implements FreeEedUIHelper {
 
     private boolean stageDataIsValid(Project project) {
 
-        System.out.println( Project.getActiveProject().getName() );
+        System.out.println(Project.getActiveProject().getName());
 
 
         /*

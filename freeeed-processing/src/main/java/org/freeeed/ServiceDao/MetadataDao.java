@@ -76,14 +76,8 @@ public class MetadataDao {
     }
 
     int createMetaData(ProjectMetadata meta) {
-        Session s = HibernateUtil.
-                getInstance().
-                getSessionFactory()
-                .withOptions()
-                .jdbcTimeZone(TimeZone.getTimeZone("UTC"))
-                .openSession();
-        Transaction transaction = s.beginTransaction();
-        s.save(meta);
+        Transaction transaction = currentSession.beginTransaction();
+        currentSession.save(meta);
         transaction.commit();
         return 1;
     }

@@ -7,4 +7,6 @@ public interface FreeEedUIHelper {
     void setProgressDone();
     void setProgressedSize(String label);
     void setProgressIndeterminate(boolean status);
+    void setSecondProgressBarMaximum(int max);
+    void setSecondProgressBarValue(int prg);
 }

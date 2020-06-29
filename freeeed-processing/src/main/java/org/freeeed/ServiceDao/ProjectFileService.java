@@ -24,7 +24,7 @@ public class ProjectFileService {
         return mInstance;
     }
 
-    public void createProjectFile(ProjectFile projectFile) {
+    public ProjectFile createProjectFile(ProjectFile projectFile) {
         try {
             String hash = Util.createKeyHash(projectFile.getFile(), null);
             projectFile.setHash(hash);
@@ -34,15 +34,22 @@ public class ProjectFileService {
         projectFile.setFileSize(projectFile.getFile().length());
         projectFile.setExtension(Util.getExtension(projectFile.getFile().getName()));
         if (!ProjectFileService.getInstance().isFileExists(projectFile)) {
-            ProjectFileDao.getInstance().createProjectFile(projectFile);
+            int id = ProjectFileDao.getInstance().createProjectFile(projectFile);
+            return ProjectFileDao.getInstance().getProjectFilebyId(id);
         }
+        return null;
     }
 
     public List<ProjectFile> getProjectFilesByProject(Project project) {
         return ProjectFileDao.getInstance().getProjectFilesByProject(project);
     }
 
-    public boolean isFileExists(ProjectFile projectFile) {
+    public List<ProjectFile> getProjectFilesByProject(Project project, String extension) {
+        return ProjectFileDao.getInstance().getProjectFilesByProject(project, extension);
+    }
+
+
+    private boolean isFileExists(ProjectFile projectFile) {
         return ProjectFileDao.getInstance().isFileExists(projectFile);
     }
 
@@ -54,5 +61,8 @@ public class ProjectFileService {
         return ProjectFileDao.getInstance().getProjectFileCount(project);
     }
 
+    public void updateProjectFile(ProjectFile projectFile){
+        ProjectFileDao.getInstance().updateProjectFile(projectFile);
+    }
 
 }
