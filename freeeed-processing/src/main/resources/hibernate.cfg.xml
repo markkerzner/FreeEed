@@ -11,7 +11,7 @@
         <property name="hibernate.connection.CharSet">utf8</property>
         <property name="hibernate.connection.characterEncoding">utf8</property>
         <property name="hibernate.connection.useUnicode">true</property>
-        <property name="hibernate.connection.serverTimezone">UTC</property>
+        <property name="hibernate.connection.serverTimezone">Australia/Sydney</property>
         <mapping class="org.freeeed.Entity.Project"/>
         <mapping class="org.freeeed.Entity.ProjectCustodian"/>
         <mapping class="org.freeeed.Entity.ProjectPath"/>
