@@ -51,6 +51,13 @@
         <module>freeeed-processing</module>
         <module>freeeed-test</module>
     </modules>
+    <repositories>
+        <repository>
+            <id>ScaiaServer</id>
+            <name>Scaia Nexus</name>
+            <url>http://188.227.170.88:8081/repository/maven-releases/</url>
+        </repository>
+    </repositories>
     <dependencyManagement>
         <dependencies>
 
