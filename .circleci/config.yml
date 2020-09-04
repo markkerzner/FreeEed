@@ -1,12 +1,12 @@
 version: 2.1
 
 orbs:
-  maven: circleci/maven@0.0.12
+  maven: circleci/maven@1.0.2
 
-workflows:
-  build_and_test:
-    jobs:
-      - build
-      - test:
-          requires:
-            - build
+jobs:
+  build:
+    machine:
+      image: 'ubuntu-1604:201903-01'
+    steps:
+      - checkout
+      - run: echo "Hello world!"
