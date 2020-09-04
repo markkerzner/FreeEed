@@ -6,4 +6,5 @@ orbs:
 workflows:
   maven_test:
     jobs:
+      - maven/install
       - maven/test # checkout, build, test, and upload test results
